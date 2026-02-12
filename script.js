@@ -17,6 +17,8 @@ const CONFIG = {
     { src: 'hersong/hersong.mp3', name: 'MAGIC💕' },
     { src: "hersong/hersong2.mp3", name: "4VER💖" },
     { src: "hersong/hersong3.mp3", name: "YOU'RE STILL THE ONE💘" }
+    { src: "hersong/hersong4.mp3", name: "I FEEL IT COMING💗" }
+
   ],
 };
 
