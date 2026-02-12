@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>For You, Ama 💖</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Quicksand:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ═══════════ SPLASH / ENVELOPE SCREEN ═══════════ -->
+  <div id="splash">
+    <div class="envelope-wrapper">
+      <div class="envelope">
+        <div class="envelope-flap"></div>
+        <div class="envelope-body">
+          <div class="letter-peek">💌</div>
+        </div>
+      </div>
+      <p class="splash-text">Tap to open your surprise, <span class="highlight">Ama</span></p>
+      <div class="pulse-hint">💖</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ MAIN CONTENT (hidden until splash tap) ═══════════ -->
+  <div id="main-content" class="hidden">
+
+    <!-- Floating hearts background -->
+    <div id="floating-hearts" aria-hidden="true"></div>
+
+    <!-- Music toggle -->
+    <button id="music-toggle" aria-label="Toggle music" title="Toggle music">
+      <span class="music-icon">♫</span>
+      <span class="music-pulse"></span>
+    </button>
+
+    <!-- ── SECTION 1: INTRO / LOVE LETTER ── -->
+    <section id="intro" class="section">
+      <div class="heartbeat-line" aria-hidden="true">
+        <svg viewBox="0 0 600 60" preserveAspectRatio="none">
+          <polyline class="ekg-line" points="0,30 100,30 120,30 135,5 150,55 165,10 180,50 195,30 210,30 600,30" />
+        </svg>
+      </div>
+      <div class="intro-content reveal">
+        <h1 class="love-title">To My Beautiful <span class="highlight">Ama</span></h1>
+        <div id="typewriter" class="love-letter"></div>
+        <div class="letter-heart">❤️</div>
+      </div>
+    </section>
+
+    <!-- EKG Divider -->
+    <div class="ekg-divider" aria-hidden="true">
+      <svg viewBox="0 0 800 60" preserveAspectRatio="none">
+        <polyline class="ekg-line" points="0,30 200,30 230,30 245,5 260,55 275,10 290,50 305,30 330,30 530,30 560,30 575,5 590,55 605,10 620,50 635,30 660,30 800,30" />
+      </svg>
+    </div>
+
+    <!-- ── SECTION 2: REASONS I LOVE YOU ── -->
+    <section id="reasons" class="section">
+      <h2 class="section-title reveal">Reasons I Love You</h2>
+      <p class="section-subtitle reveal">Even a thousand pages wouldn't be enough...</p>
+
+      <div class="reasons-grid">
+
+        <div class="reason-card reveal" style="--delay: 0.1s">
+          <div class="reason-img-wrap">
+            <img src="herpictures/photo1.jpg" alt="Ama" loading="lazy" />
+          </div>
+          <div class="reason-text">
+            <span class="reason-number">01</span>
+            <p>You heal everyone around you — but you're the one who fixed my heart. My favorite nurse. 🩺</p>
+          </div>
+        </div>
+
+        <div class="reason-card reveal" style="--delay: 0.2s">
+          <div class="reason-img-wrap">
+            <img src="herpictures/photo2.jpg" alt="Ama" loading="lazy" />
+          </div>
+          <div class="reason-text">
+            <span class="reason-number">02</span>
+            <p>The way you still make time for us — even after the longest shifts. Your love never clocks out. 💕</p>
+          </div>
+        </div>
+
+        <div class="reason-card reveal" style="--delay: 0.3s">
+          <div class="reason-img-wrap">
+            <img src="herpictures/photo3.jpg" alt="Ama" loading="lazy" />
+          </div>
+          <div class="reason-text">
+            <span class="reason-number">03</span>
+            <p>The miles between us only prove how strong this love is. You're worth every second of waiting. 🌍❤️</p>
+          </div>
+        </div>
+
+        <div class="reason-card reveal" style="--delay: 0.4s">
+          <div class="reason-img-wrap">
+            <img src="herpictures/photo4.jpg" alt="Ama" loading="lazy" />
+          </div>
+          <div class="reason-text">
+            <span class="reason-number">04</span>
+            <p>Your smile could cure anything — I swear it's the best medicine I've ever known. 😊💊</p>
+          </div>
+        </div>
+
+        <div class="reason-card reveal" style="--delay: 0.5s">
+          <div class="reason-img-wrap">
+            <img src="herpictures/photo5.jpg" alt="Ama" loading="lazy" />
+          </div>
+          <div class="reason-text">
+            <span class="reason-number">05</span>
+            <p>Because loving you is the one thing distance can never take away from me. You are my forever. 💖</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- EKG Divider -->
+    <div class="ekg-divider" aria-hidden="true">
+      <svg viewBox="0 0 800 60" preserveAspectRatio="none">
+        <polyline class="ekg-line" points="0,30 200,30 230,30 245,5 260,55 275,10 290,50 305,30 330,30 530,30 560,30 575,5 590,55 605,10 620,50 635,30 660,30 800,30" />
+      </svg>
+    </div>
+
+    <!-- ── SECTION 3: DISTANCE COUNTER ── -->
+    <section id="distance" class="section">
+      <div class="distance-content reveal">
+        <h2 class="section-title">Every Second With You Counts</h2>
+        <p class="distance-sub">Even across the miles, my heart beats only for you.</p>
+        <div class="heartbeat-counter">
+          <div class="big-heart" aria-hidden="true">❤️</div>
+          <div id="love-timer" class="love-timer">
+            <div class="timer-unit">
+              <span id="timer-days" class="timer-num">000</span>
+              <span class="timer-label">days</span>
+            </div>
+            <div class="timer-sep">:</div>
+            <div class="timer-unit">
+              <span id="timer-hours" class="timer-num">00</span>
+              <span class="timer-label">hours</span>
+            </div>
+            <div class="timer-sep">:</div>
+            <div class="timer-unit">
+              <span id="timer-mins" class="timer-num">00</span>
+              <span class="timer-label">minutes</span>
+            </div>
+            <div class="timer-sep">:</div>
+            <div class="timer-unit">
+              <span id="timer-secs" class="timer-num">00</span>
+              <span class="timer-label">seconds</span>
+            </div>
+          </div>
+          <p class="timer-caption">...of loving you 💖</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- EKG Divider -->
+    <div class="ekg-divider" aria-hidden="true">
+      <svg viewBox="0 0 800 60" preserveAspectRatio="none">
+        <polyline class="ekg-line" points="0,30 200,30 230,30 245,5 260,55 275,10 290,50 305,30 330,30 530,30 560,30 575,5 590,55 605,10 620,50 635,30 660,30 800,30" />
+      </svg>
+    </div>
+
+    <!-- ── SECTION 4: THE PROPOSAL ── -->
+    <section id="proposal" class="section">
+      <div class="proposal-content reveal">
+        <div class="proposal-heart-bg" aria-hidden="true">💖</div>
+        <h2 class="proposal-title">So, <span class="highlight">Ama</span>...</h2>
+        <p class="proposal-question">Will you be my Valentine? 💐</p>
+        <div class="proposal-buttons">
+          <button id="btn-yes" class="btn-proposal btn-yes">Yes! 💖</button>
+          <button id="btn-no" class="btn-proposal btn-no">No 😢</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── YES RESULT (hidden until Yes is clicked) ── -->
+    <div id="yes-screen" class="result-screen hidden">
+      <canvas id="confetti-canvas"></canvas>
+      <div class="yes-content">
+        <div class="yes-hearts" aria-hidden="true">💖💕💗💝💘</div>
+        <h1 class="yes-title">I Love You, Ama!</h1>
+        <p class="yes-message">You just made me the happiest person in the world. 🥹<br/>No distance can ever break what we have.<br/>Happy Valentine's Day, my love. 💖</p>
+        <div class="yes-emoji-rain" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <!-- Photo lightbox -->
+    <div id="lightbox" class="lightbox hidden" role="dialog" aria-label="Photo viewer">
+      <button class="lightbox-close" aria-label="Close">&times;</button>
+      <img id="lightbox-img" src="" alt="Ama" />
+    </div>
+
+  </div>
+
+  <!-- ═══════════ AUDIO ═══════════ -->
+  <audio id="bg-music" loop preload="auto">
+    <source src="hersong/hersong.mp3" type="audio/mpeg" />
+  </audio>
+
+  <script src="script.js"></script>
+</body>
+</html>

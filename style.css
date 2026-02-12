@@ -1,0 +1,581 @@
+/* ╔══════════════════════════════════════════════════╗
+   ║  Valentine Proposal for Ama — style.css          ║
+   ║  Pink / Rose-Gold / Deep Red romantic palette     ║
+   ║  Nurse-themed EKG heartbeat dividers              ║
+   ╚══════════════════════════════════════════════════╝ */
+
+/* ── VARIABLES ── */
+:root {
+  --pink:       #ff6b8a;
+  --rose:       #e84a7a;
+  --deep-red:   #c0294e;
+  --blush:      #fff0f3;
+  --rose-gold:  #e8a0a0;
+  --gold:       #f5c77e;
+  --dark:       #1a0a10;
+  --white:      #fff;
+  --font-script: 'Dancing Script', cursive;
+  --font-body:   'Quicksand', sans-serif;
+  --font-serif:  'Playfair Display', serif;
+}
+
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
+body {
+  font-family: var(--font-body);
+  background: var(--dark);
+  color: var(--white);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.hidden { display: none !important; }
+
+/* ══════════════════════════════════════════
+   SPLASH / ENVELOPE SCREEN
+   ══════════════════════════════════════════ */
+#splash {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at center, #2d0a1a 0%, #0d0208 100%);
+  cursor: pointer;
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+#splash.fade-out {
+  opacity: 0; visibility: hidden; pointer-events: none;
+}
+
+.envelope-wrapper { text-align: center; animation: floatIn 1s ease-out; }
+
+.envelope {
+  position: relative;
+  width: 200px; height: 140px;
+  margin: 0 auto 30px;
+}
+.envelope-body {
+  position: absolute; bottom: 0;
+  width: 100%; height: 100px;
+  background: linear-gradient(135deg, #f7d1d1, #f9e0e0);
+  border-radius: 4px;
+  box-shadow: 0 8px 30px rgba(232, 74, 122, 0.3);
+  display: flex; align-items: center; justify-content: center;
+}
+.letter-peek {
+  font-size: 2.5rem;
+  animation: letterBounce 2s ease-in-out infinite;
+}
+.envelope-flap {
+  position: absolute; top: 0; left: 0;
+  width: 0; height: 0;
+  border-left: 100px solid transparent;
+  border-right: 100px solid transparent;
+  border-top: 70px solid #e8a0a0;
+  z-index: 2;
+  transform-origin: top center;
+  animation: flapWave 3s ease-in-out infinite;
+}
+
+.splash-text {
+  font-family: var(--font-script);
+  font-size: clamp(1.3rem, 4vw, 2rem);
+  color: var(--rose-gold);
+  margin-bottom: 15px;
+  text-shadow: 0 0 20px rgba(232, 160, 160, 0.4);
+}
+.highlight {
+  color: var(--pink);
+  font-weight: 700;
+  text-shadow: 0 0 15px rgba(255, 107, 138, 0.5);
+}
+
+.pulse-hint {
+  font-size: 2rem;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* ══════════════════════════════════════════
+   MAIN CONTENT
+   ══════════════════════════════════════════ */
+#main-content {
+  position: relative;
+  background: linear-gradient(180deg,
+    #1a0a10 0%,
+    #2d0a1a 20%,
+    #1a0a10 40%,
+    #2d0a1a 60%,
+    #1a0a10 80%,
+    #2d0a1a 100%
+  );
+}
+
+/* ── FLOATING HEARTS (background) ── */
+#floating-hearts {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none; overflow: hidden;
+}
+.floating-heart {
+  position: absolute;
+  font-size: var(--size, 1.2rem);
+  opacity: var(--opacity, 0.15);
+  bottom: -50px;
+  animation: floatUp var(--duration, 12s) linear infinite;
+  animation-delay: var(--delay, 0s);
+  left: var(--left, 50%);
+}
+
+/* ── MUSIC TOGGLE ── */
+#music-toggle {
+  position: fixed; top: 20px; right: 20px; z-index: 1000;
+  width: 50px; height: 50px;
+  border: 2px solid var(--pink);
+  border-radius: 50%;
+  background: rgba(26, 10, 16, 0.7);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s ease;
+}
+#music-toggle:hover { background: rgba(255, 107, 138, 0.2); transform: scale(1.1); }
+#music-toggle.playing .music-icon { animation: musicBounce 0.6s ease infinite; }
+.music-icon { font-size: 1.3rem; color: var(--pink); }
+.music-pulse {
+  position: absolute; inset: -4px;
+  border: 2px solid var(--pink);
+  border-radius: 50%;
+  opacity: 0;
+}
+#music-toggle.playing .music-pulse { animation: musicPulseRing 1.5s ease-out infinite; }
+
+/* ══════════════════════════════════════════
+   SECTION: INTRO / LOVE LETTER
+   ══════════════════════════════════════════ */
+.section {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 60px 20px;
+}
+
+.heartbeat-line {
+  position: absolute; top: 0; width: 100%;
+  opacity: 0.15;
+}
+.heartbeat-line svg { width: 100%; height: 60px; }
+
+.intro-content { text-align: center; max-width: 700px; }
+
+.love-title {
+  font-family: var(--font-script);
+  font-size: clamp(2rem, 7vw, 3.8rem);
+  color: var(--white);
+  margin-bottom: 30px;
+  text-shadow: 0 0 30px rgba(255, 107, 138, 0.3);
+}
+
+.love-letter {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  line-height: 1.9;
+  color: var(--rose-gold);
+  min-height: 180px;
+  text-align: center;
+  padding: 0 10px;
+}
+.love-letter .cursor {
+  display: inline-block;
+  width: 2px; height: 1.2em;
+  background: var(--pink);
+  margin-left: 3px;
+  animation: blink 0.8s step-end infinite;
+  vertical-align: text-bottom;
+}
+
+.letter-heart {
+  font-size: 2.5rem;
+  margin-top: 25px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* ══════════════════════════════════════════
+   EKG DIVIDER (nurse-themed)
+   ══════════════════════════════════════════ */
+.ekg-divider {
+  position: relative; z-index: 1;
+  width: 100%;
+  padding: 10px 0;
+  opacity: 0.25;
+}
+.ekg-divider svg { width: 100%; height: 60px; }
+.ekg-line {
+  fill: none;
+  stroke: var(--pink);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+  animation: drawEKG 3s ease forwards;
+}
+
+/* ══════════════════════════════════════════
+   SECTION: REASONS I LOVE YOU
+   ══════════════════════════════════════════ */
+.section-title {
+  font-family: var(--font-script);
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  color: var(--pink);
+  text-align: center;
+  margin-bottom: 10px;
+  text-shadow: 0 0 20px rgba(255, 107, 138, 0.3);
+}
+.section-subtitle {
+  font-size: 1rem;
+  color: var(--rose-gold);
+  text-align: center;
+  margin-bottom: 50px;
+  opacity: 0.7;
+}
+
+.reasons-grid {
+  display: flex; flex-direction: column;
+  gap: 40px; max-width: 800px;
+  width: 100%; margin: 0 auto;
+}
+
+.reason-card {
+  display: flex; gap: 25px;
+  background: rgba(255, 240, 243, 0.04);
+  border: 1px solid rgba(255, 107, 138, 0.12);
+  border-radius: 20px;
+  padding: 20px;
+  backdrop-filter: blur(6px);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  animation-delay: var(--delay, 0s);
+}
+.reason-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(255, 107, 138, 0.15);
+}
+.reason-card:nth-child(even) { flex-direction: row-reverse; }
+
+.reason-img-wrap {
+  flex-shrink: 0; width: 180px; height: 220px;
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+.reason-img-wrap:hover { transform: scale(1.03); }
+.reason-img-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+.reason-img-wrap:hover img { transform: scale(1.08); }
+
+.reason-text {
+  display: flex; flex-direction: column;
+  justify-content: center; flex: 1;
+}
+.reason-number {
+  font-family: var(--font-script);
+  font-size: 2.5rem;
+  color: var(--pink);
+  opacity: 0.3;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.reason-text p {
+  font-size: clamp(0.95rem, 2vw, 1.1rem);
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ══════════════════════════════════════════
+   SECTION: LOVE TIMER / DISTANCE
+   ══════════════════════════════════════════ */
+.distance-content { text-align: center; }
+.distance-sub {
+  font-size: 1.05rem;
+  color: var(--rose-gold);
+  opacity: 0.7;
+  margin-bottom: 40px;
+}
+
+.heartbeat-counter { position: relative; }
+.big-heart {
+  font-size: 5rem;
+  animation: pulse 1.5s ease-in-out infinite;
+  margin-bottom: 20px;
+}
+
+.love-timer {
+  display: flex;
+  align-items: center; justify-content: center;
+  gap: 8px; flex-wrap: wrap;
+}
+.timer-unit { text-align: center; }
+.timer-num {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  color: var(--pink);
+  text-shadow: 0 0 20px rgba(255, 107, 138, 0.4);
+  line-height: 1.2;
+}
+.timer-label {
+  font-size: 0.75rem;
+  color: var(--rose-gold);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  opacity: 0.6;
+}
+.timer-sep {
+  font-size: 2rem; color: var(--rose-gold);
+  opacity: 0.3; align-self: flex-start;
+  padding-top: 8px;
+}
+.timer-caption {
+  margin-top: 20px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--rose-gold);
+  font-size: 1.1rem;
+}
+
+/* ══════════════════════════════════════════
+   SECTION: THE PROPOSAL
+   ══════════════════════════════════════════ */
+#proposal { min-height: 100vh; }
+
+.proposal-content {
+  text-align: center;
+  position: relative;
+}
+.proposal-heart-bg {
+  position: absolute;
+  font-size: clamp(8rem, 30vw, 18rem);
+  opacity: 0.05;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.proposal-title {
+  font-family: var(--font-script);
+  font-size: clamp(2rem, 7vw, 3.5rem);
+  margin-bottom: 15px;
+  text-shadow: 0 0 25px rgba(255, 107, 138, 0.3);
+}
+.proposal-question {
+  font-family: var(--font-serif);
+  font-size: clamp(1.3rem, 4vw, 2rem);
+  font-style: italic;
+  color: var(--rose-gold);
+  margin-bottom: 45px;
+  animation: pulse 2.5s ease-in-out infinite;
+}
+
+.proposal-buttons {
+  display: flex; gap: 25px;
+  justify-content: center;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.btn-proposal {
+  font-family: var(--font-body);
+  font-size: 1.3rem;
+  font-weight: 600;
+  padding: 16px 50px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-yes {
+  background: linear-gradient(135deg, var(--pink), var(--rose));
+  color: var(--white);
+  box-shadow: 0 8px 30px rgba(255, 107, 138, 0.4);
+}
+.btn-yes:hover {
+  transform: scale(1.08);
+  box-shadow: 0 12px 40px rgba(255, 107, 138, 0.6);
+}
+.btn-yes::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, transparent, rgba(255,255,255,0.2), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+.btn-yes:hover::before { transform: translateX(100%); }
+
+.btn-no {
+  background: transparent;
+  color: var(--rose-gold);
+  border: 2px solid rgba(232, 160, 160, 0.3);
+  transition: all 0.15s ease;
+}
+
+/* ══════════════════════════════════════════
+   YES RESULT SCREEN
+   ══════════════════════════════════════════ */
+.result-screen {
+  position: fixed; inset: 0; z-index: 5000;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at center, #2d0a1a 0%, #0d0208 100%);
+}
+#confetti-canvas {
+  position: absolute; inset: 0;
+  z-index: 0; pointer-events: none;
+}
+.yes-content {
+  position: relative; z-index: 1;
+  text-align: center;
+  padding: 30px;
+  animation: zoomIn 0.6s ease-out;
+}
+.yes-hearts {
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  margin-bottom: 20px;
+  animation: pulse 1.5s ease-in-out infinite;
+  letter-spacing: 10px;
+}
+.yes-title {
+  font-family: var(--font-script);
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  color: var(--pink);
+  margin-bottom: 25px;
+  text-shadow: 0 0 40px rgba(255, 107, 138, 0.5);
+}
+.yes-message {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  line-height: 2;
+  color: var(--rose-gold);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ══════════════════════════════════════════
+   LIGHTBOX
+   ══════════════════════════════════════════ */
+.lightbox {
+  position: fixed; inset: 0; z-index: 8000;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.3s ease;
+}
+.lightbox img {
+  max-width: 90vw; max-height: 85vh;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(255, 107, 138, 0.2);
+  object-fit: contain;
+}
+.lightbox-close {
+  position: absolute; top: 20px; right: 25px;
+  font-size: 2.5rem;
+  color: var(--white);
+  background: none; border: none;
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.3s ease;
+  line-height: 1;
+}
+.lightbox-close:hover { color: var(--pink); transform: rotate(90deg); }
+
+/* ══════════════════════════════════════════
+   REVEAL ANIMATION
+   ══════════════════════════════════════════ */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  transition-delay: var(--delay, 0s);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ══════════════════════════════════════════
+   KEYFRAMES
+   ══════════════════════════════════════════ */
+@keyframes floatIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes flapWave {
+  0%, 100% { transform: rotateX(0); }
+  50%      { transform: rotateX(25deg); }
+}
+@keyframes letterBounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.12); }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
+}
+@keyframes drawEKG {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes floatUp {
+  0%   { transform: translateY(0) rotate(0deg); opacity: var(--opacity, 0.15); }
+  100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+}
+@keyframes musicBounce {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.15); }
+}
+@keyframes musicPulseRing {
+  0%   { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+@keyframes zoomIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════ */
+@media (max-width: 600px) {
+  .reason-card,
+  .reason-card:nth-child(even) {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .reason-img-wrap {
+    width: 100%; height: 250px;
+  }
+  .reason-number { text-align: center; }
+  .proposal-buttons { flex-direction: column; align-items: center; }
+  .btn-proposal { width: 80%; }
+  .timer-sep { display: none; }
+  .love-timer { gap: 15px; }
+  #music-toggle { top: 12px; right: 12px; width: 42px; height: 42px; }
+}
