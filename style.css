@@ -95,11 +95,12 @@ body {
   position: fixed; inset: 0; z-index: 0;
   pointer-events: none; overflow: hidden;
 }
-.floating-heart, .floating-petal {
+.floating-heart, .floating-petal, .floating-flower {
   position: absolute; bottom: -50px;
   animation: floatUp var(--duration, 12s) linear infinite;
   animation-delay: var(--delay, 0s);
   left: var(--left, 50%);
+  will-change: transform, opacity;
 }
 .floating-heart {
   font-size: var(--size, 1.2rem);
@@ -114,6 +115,13 @@ body {
   transform: rotate(var(--rotation, 45deg));
   animation: floatUpSway var(--duration, 14s) linear infinite;
   animation-delay: var(--delay, 0s);
+}
+.floating-flower {
+  font-size: var(--size, 1.4rem);
+  opacity: var(--opacity, 0.2);
+  animation: floatUpSway var(--duration, 16s) linear infinite;
+  animation-delay: var(--delay, 0s);
+  filter: drop-shadow(0 0 6px rgba(255, 107, 138, 0.3));
 }
 
 /* ── MUSIC PLAYER (playlist) ── */
@@ -172,6 +180,7 @@ body {
   transform: translateY(60px) scale(0.97);
   transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
               transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
 }
 .page-section.page-visible {
   opacity: 1;
@@ -236,9 +245,9 @@ body {
   background: rgba(255, 240, 243, 0.04);
   border: 1px solid rgba(255, 107, 138, 0.12);
   border-radius: 20px; padding: 20px;
-  backdrop-filter: blur(6px);
   transition: transform 0.4s ease, box-shadow 0.4s ease;
   animation-delay: var(--delay, 0s);
+  transform: translateZ(0);
 }
 .reason-card:hover {
   transform: translateY(-5px);
@@ -382,9 +391,8 @@ body {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  background: rgba(26, 10, 16, 0.9);
+  background: rgba(26, 10, 16, 0.95);
   border-radius: 16px;
-  backdrop-filter: blur(6px);
   animation: fadeIn 0.4s ease;
 }
 .game-over-text {
@@ -521,9 +529,9 @@ body {
    ══════════════════════════════════════════ */
 .lightbox {
   position: fixed; inset: 0; z-index: 8000;
-  background: rgba(0, 0, 0, 0.92);
+  background: rgba(0, 0, 0, 0.95);
   display: flex; align-items: center; justify-content: center;
-  backdrop-filter: blur(8px); animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.3s ease;
 }
 .lightbox img {
   max-width: 90vw; max-height: 85vh;
@@ -612,6 +620,8 @@ body {
    RESPONSIVE
    ══════════════════════════════════════════ */
 @media (max-width: 600px) {
+  html { overscroll-behavior: none; }
+  body { overscroll-behavior-y: none; -webkit-overflow-scrolling: touch; }
   .reason-card,
   .reason-card:nth-child(even) {
     flex-direction: column; align-items: center; text-align: center;
@@ -629,4 +639,10 @@ body {
   #game-canvas { height: 280px; }
   .voicenote-btn { width: 100px; height: 100px; }
   .voicenote-icon { font-size: 2rem; }
+  /* Reduce floating elements on mobile for performance */
+  .floating-heart:nth-child(n+8),
+  .floating-petal:nth-child(n+22),
+  .floating-flower:nth-child(n+30) { display: none; }
+  #cursor-trail { display: none; }
+  .floating-flower { filter: none; }
 }

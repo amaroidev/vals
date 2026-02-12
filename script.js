@@ -169,10 +169,12 @@ function initPageTransitions() {
    ═══════════════════════════════════════════════════ */
 function spawnFloatingHeartsAndPetals() {
   const container = document.getElementById('floating-hearts');
+  const isMobile = window.innerWidth <= 600;
   const hearts = ['❤️', '💕', '💖', '💗', '🩷', '♥', '💘'];
 
-  // Floating hearts
-  for (let i = 0; i < 15; i++) {
+  // Floating hearts (fewer on mobile)
+  const heartCount = isMobile ? 7 : 15;
+  for (let i = 0; i < heartCount; i++) {
     const heart = document.createElement('div');
     heart.classList.add('floating-heart');
     heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
@@ -184,7 +186,7 @@ function spawnFloatingHeartsAndPetals() {
     container.appendChild(heart);
   }
 
-  // Rose petals
+  // Rose petals (fewer on mobile)
   const petalColors = [
     'rgba(255,107,138,0.5)',
     'rgba(232,74,122,0.4)',
@@ -192,8 +194,8 @@ function spawnFloatingHeartsAndPetals() {
     'rgba(245,199,126,0.3)',
     'rgba(255,182,193,0.5)',
   ];
-
-  for (let i = 0; i < 18; i++) {
+  const petalCount = isMobile ? 8 : 18;
+  for (let i = 0; i < petalCount; i++) {
     const petal = document.createElement('div');
     petal.classList.add('floating-petal');
     petal.style.setProperty('--left', Math.random() * 100 + '%');
@@ -205,6 +207,22 @@ function spawnFloatingHeartsAndPetals() {
     petal.style.setProperty('--rotation', Math.random() * 360 + 'deg');
     container.appendChild(petal);
   }
+
+  // 🌸 Floating flowers
+  const flowers = ['🌸', '🌺', '🌷', '🌹', '💐', '🌻', '🪷', '🌼'];
+  const flowerCount = isMobile ? 5 : 12;
+  for (let i = 0; i < flowerCount; i++) {
+    const flower = document.createElement('div');
+    flower.classList.add('floating-flower');
+    flower.textContent = flowers[Math.floor(Math.random() * flowers.length)];
+    flower.style.setProperty('--left', Math.random() * 100 + '%');
+    flower.style.setProperty('--delay', Math.random() * 25 + 's');
+    flower.style.setProperty('--duration', 14 + Math.random() * 18 + 's');
+    flower.style.setProperty('--size', 1 + Math.random() * 1.6 + 'rem');
+    flower.style.setProperty('--opacity', 0.12 + Math.random() * 0.18);
+    flower.style.setProperty('--rotation', Math.random() * 360 + 'deg');
+    container.appendChild(flower);
+  }
 }
 
 
@@ -212,6 +230,9 @@ function spawnFloatingHeartsAndPetals() {
    7. GLOWING CURSOR TRAIL ✨
    ═══════════════════════════════════════════════════ */
 function initCursorTrail() {
+  // Skip cursor trail entirely on mobile for performance
+  if (window.innerWidth <= 600 || 'ontouchstart' in window) return;
+
   const canvas = document.getElementById('cursor-trail');
   const ctx = canvas.getContext('2d');
   let particles = [];
@@ -246,10 +267,6 @@ function initCursorTrail() {
   }
 
   document.addEventListener('mousemove', (e) => onMove(e.clientX, e.clientY));
-  document.addEventListener('touchmove', (e) => {
-    const t = e.touches[0];
-    onMove(t.clientX, t.clientY);
-  }, { passive: true });
 
   function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
