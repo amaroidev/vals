@@ -366,6 +366,121 @@ body {
 }
 
 /* ══════════════════════════════════════════
+   SECTION: HER NAME IN STARS ✨
+   ══════════════════════════════════════════ */
+.starname-content { text-align: center; width: 100%; }
+.starname-wrap {
+  position: relative;
+  width: 100%; max-width: 700px;
+  margin: 0 auto;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 107, 138, 0.1);
+  box-shadow: 0 0 40px rgba(255, 107, 138, 0.08);
+}
+#star-canvas {
+  width: 100%; height: 320px;
+  background: radial-gradient(ellipse at center, #0d0820 0%, #050210 70%, #000 100%);
+  border-radius: 20px;
+  display: block;
+}
+
+/* ══════════════════════════════════════════
+   SECTION: LOVE FORTUNE COOKIE 🥠
+   ══════════════════════════════════════════ */
+.fortune-content { text-align: center; }
+.fortune-cookie-wrap {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 25px;
+}
+.fortune-cookie {
+  position: relative;
+  width: 140px; height: 140px;
+  background: none; border: none;
+  cursor: pointer;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: cookieFloat 3s ease-in-out infinite;
+}
+.fortune-cookie:hover { transform: scale(1.12) rotate(-5deg); }
+.fortune-cookie:active { transform: scale(0.9); }
+.cookie-emoji { font-size: 6rem; display: block; filter: drop-shadow(0 8px 20px rgba(245, 199, 126, 0.4)); }
+.cookie-sparkles {
+  position: absolute; inset: -20px;
+  pointer-events: none;
+}
+.cookie-sparkle {
+  position: absolute;
+  width: 4px; height: 4px;
+  background: var(--gold);
+  border-radius: 50%;
+  animation: cookieSpark 1.5s ease-out infinite;
+}
+.fortune-cookie.cracked .cookie-emoji {
+  animation: cookieCrack 0.5s ease forwards;
+}
+
+.fortune-slip {
+  background: linear-gradient(135deg, #fff9e6 0%, #fff5d4 50%, #ffecb3 100%);
+  border-radius: 8px;
+  padding: 25px 35px;
+  max-width: 420px;
+  box-shadow: 0 8px 30px rgba(245, 199, 126, 0.3),
+              0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: slipReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+.fortune-text {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1rem, 2.5vw, 1.15rem);
+  line-height: 1.8;
+  color: #4a2028;
+  margin-bottom: 10px;
+}
+.fortune-heart {
+  font-size: 1.5rem;
+}
+.fortune-again {
+  font-family: var(--font-body);
+  font-size: 1rem; font-weight: 600;
+  padding: 12px 30px;
+  border: 2px solid var(--gold);
+  border-radius: 50px;
+  background: rgba(245, 199, 126, 0.1);
+  color: var(--gold);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.fortune-again:hover {
+  background: rgba(245, 199, 126, 0.2);
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(245, 199, 126, 0.2);
+}
+
+@keyframes cookieFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-10px) rotate(3deg); }
+}
+@keyframes cookieCrack {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.2) rotate(-10deg); }
+  60%  { transform: scale(0.8) rotate(5deg); }
+  100% { transform: scale(0.6); opacity: 0.3; }
+}
+@keyframes slipReveal {
+  from { transform: scaleY(0) translateY(-20px); opacity: 0; }
+  to   { transform: scaleY(1) translateY(0); opacity: 1; }
+}
+@keyframes cookieSpark {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--sx, 20px), var(--sy, -30px)) scale(0); opacity: 0; }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50%      { opacity: 1; transform: scale(1.2); }
+}
+
+/* ══════════════════════════════════════════
    SECTION: CATCH THE HEARTS GAME
    ══════════════════════════════════════════ */
 .game-area-wrap {
@@ -645,4 +760,8 @@ body {
   .floating-flower:nth-child(n+30) { display: none; }
   #cursor-trail { display: none; }
   .floating-flower { filter: none; }
+  #star-canvas { height: 240px; }
+  .fortune-cookie { width: 110px; height: 110px; }
+  .cookie-emoji { font-size: 4.5rem; }
+  .fortune-slip { padding: 20px 25px; max-width: 90vw; }
 }

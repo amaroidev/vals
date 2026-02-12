@@ -60,6 +60,8 @@ splash.addEventListener('click', () => {
     startTypewriter();
     spawnFloatingHeartsAndPetals();
     initCursorTrail();
+    initStarName();
+    initFortuneCookie();
     initEKGMonitor();
   }, 400);
 });
@@ -329,7 +331,274 @@ function startLoveTimer() {
 
 
 /* ═══════════════════════════════════════════════════
-   9. VOICE NOTE PLAYER
+   9. HER NAME WRITTEN IN STARS ✨
+   ═══════════════════════════════════════════════════ */
+function initStarName() {
+  const canvas = document.getElementById('star-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let animStarted = false;
+
+  const observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && !animStarted) {
+      animStarted = true;
+      resizeStarCanvas();
+      runStars();
+      observer.disconnect();
+    }
+  }, { threshold: 0.3 });
+  observer.observe(canvas);
+
+  function resizeStarCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+  }
+
+  function runStars() {
+    const W = canvas.width;
+    const H = canvas.height;
+
+    // Background stars
+    const bgStars = [];
+    for (let i = 0; i < 120; i++) {
+      bgStars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        size: Math.random() * 1.8 + 0.3,
+        twinkleSpeed: 0.005 + Math.random() * 0.02,
+        twinkleOffset: Math.random() * Math.PI * 2,
+        brightness: 0.3 + Math.random() * 0.7,
+      });
+    }
+
+    // Get text points by drawing text to a temp canvas and sampling
+    const textParticles = [];
+    const tmpCanvas = document.createElement('canvas');
+    const tmpCtx = tmpCanvas.getContext('2d');
+    tmpCanvas.width = W;
+    tmpCanvas.height = H;
+
+    const fontSize = Math.min(W * 0.22, 140);
+    tmpCtx.font = `bold ${fontSize}px 'Dancing Script', cursive`;
+    tmpCtx.textAlign = 'center';
+    tmpCtx.textBaseline = 'middle';
+    tmpCtx.fillStyle = '#fff';
+    tmpCtx.fillText('AMA', W / 2, H / 2);
+
+    // Sample pixels to find text positions
+    const imageData = tmpCtx.getImageData(0, 0, W, H);
+    const gap = window.innerWidth <= 600 ? 5 : 4;
+    for (let y = 0; y < H; y += gap) {
+      for (let x = 0; x < W; x += gap) {
+        const idx = (y * W + x) * 4;
+        if (imageData.data[idx + 3] > 128) {
+          textParticles.push({
+            targetX: x,
+            targetY: y,
+            x: Math.random() * W,
+            y: Math.random() * H,
+            size: Math.random() * 2.5 + 1,
+            arrived: false,
+            speed: 0.02 + Math.random() * 0.03,
+            twinkleSpeed: 0.02 + Math.random() * 0.04,
+            twinkleOffset: Math.random() * Math.PI * 2,
+            hue: 330 + Math.random() * 50, // pink-gold range
+          });
+        }
+      }
+    }
+
+    // Shooting stars
+    const shootingStars = [];
+    function maybeSpawnShootingStar() {
+      if (Math.random() < 0.008 && shootingStars.length < 2) {
+        shootingStars.push({
+          x: Math.random() * W * 0.8,
+          y: Math.random() * H * 0.3,
+          vx: 4 + Math.random() * 4,
+          vy: 2 + Math.random() * 2,
+          life: 1,
+          length: 40 + Math.random() * 60,
+        });
+      }
+    }
+
+    let time = 0;
+    let phase = 'gathering'; // gathering → settled → twinkling
+
+    function animate() {
+      // Clear with dark sky
+      ctx.fillStyle = 'rgba(5, 2, 16, 0.25)';
+      ctx.fillRect(0, 0, W, H);
+
+      time += 0.016;
+
+      // Draw background stars
+      bgStars.forEach(s => {
+        const twinkle = 0.3 + Math.sin(time * s.twinkleSpeed * 60 + s.twinkleOffset) * 0.35 + 0.35;
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(255, 255, 255, ${twinkle * s.brightness})`;
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Draw & move text particles
+      let allArrived = true;
+      textParticles.forEach(p => {
+        // Ease toward target
+        const dx = p.targetX - p.x;
+        const dy = p.targetY - p.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist > 1) {
+          allArrived = false;
+          p.x += dx * p.speed;
+          p.y += dy * p.speed;
+        } else {
+          p.arrived = true;
+        }
+
+        // Twinkling
+        const twinkle = 0.5 + Math.sin(time * p.twinkleSpeed * 60 + p.twinkleOffset) * 0.5;
+        const alpha = p.arrived ? twinkle : 0.6 + twinkle * 0.4;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.fillStyle = `hsla(${p.hue}, 100%, 80%, ${alpha})`;
+        ctx.shadowColor = `hsla(${p.hue}, 100%, 75%, ${alpha * 0.8})`;
+        ctx.shadowBlur = p.arrived ? 8 : 4;
+        ctx.arc(p.x, p.y, p.size * (p.arrived ? (0.8 + twinkle * 0.4) : 1), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      if (allArrived && phase === 'gathering') {
+        phase = 'settled';
+      }
+
+      // Shooting stars
+      maybeSpawnShootingStar();
+      for (let i = shootingStars.length - 1; i >= 0; i--) {
+        const ss = shootingStars[i];
+        ss.x += ss.vx;
+        ss.y += ss.vy;
+        ss.life -= 0.015;
+
+        if (ss.life <= 0) {
+          shootingStars.splice(i, 1);
+          continue;
+        }
+
+        ctx.save();
+        const grad = ctx.createLinearGradient(
+          ss.x, ss.y,
+          ss.x - ss.vx * ss.length / 5, ss.y - ss.vy * ss.length / 5
+        );
+        grad.addColorStop(0, `rgba(255, 255, 255, ${ss.life})`);
+        grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(ss.x, ss.y);
+        ctx.lineTo(ss.x - ss.vx * ss.length / 5, ss.y - ss.vy * ss.length / 5);
+        ctx.stroke();
+
+        // Head glow
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(255, 255, 255, ${ss.life})`;
+        ctx.shadowColor = '#fff';
+        ctx.shadowBlur = 6;
+        ctx.arc(ss.x, ss.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      requestAnimationFrame(animate);
+    }
+    animate();
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════
+   10. LOVE FORTUNE COOKIE 🥠
+   ═══════════════════════════════════════════════════ */
+function initFortuneCookie() {
+  const cookie = document.getElementById('fortune-cookie');
+  const slip = document.getElementById('fortune-slip');
+  const fortuneText = document.getElementById('fortune-text');
+  const againBtn = document.getElementById('fortune-again');
+  if (!cookie) return;
+
+  const fortunes = [
+    "Ama, the stars aligned the day I met you. Every moment since has been a gift. 💫",
+    "Your love is the medicine that heals every wound distance creates. 💉❤️",
+    "In every time zone, in every heartbeat — it's always you, Ama. 🌍",
+    "God spent extra time on you, and I'm the lucky one who gets to love you. ✨",
+    "Your smile after a long shift is my favorite thing in this whole world. 😊",
+    "Even the oceans between us can't dilute how strong my love is for you. 🌊",
+    "Every night I fall asleep grateful — because somewhere in this world, you're mine. 🌙",
+    "You don't just save lives at work, Ama. You saved mine too. 🩺💖",
+    "Our love story is my favorite — and we're only at the beginning. 📖",
+    "Distance means nothing when someone means everything. You mean everything. 💕",
+    "I'd wait a thousand more days if it meant forever starts with you. ⏳",
+    "The way you love me from far away proves love has no limits. 💌",
+    "One day, the only distance between us will be across the pillow. 🛏️💖",
+    "You are my 11:11 wish, every single time. 🕯️",
+    "My heart doesn't beat — it spells your name. A-M-A. 💓",
+  ];
+
+  let lastIndex = -1;
+
+  // Sparkle dots around cookie
+  const sparkleWrap = cookie.querySelector('.cookie-sparkles');
+  for (let i = 0; i < 8; i++) {
+    const dot = document.createElement('div');
+    dot.classList.add('cookie-sparkle');
+    const angle = (Math.PI * 2 / 8) * i;
+    dot.style.setProperty('--sx', `${Math.cos(angle) * 40}px`);
+    dot.style.setProperty('--sy', `${Math.sin(angle) * 40}px`);
+    dot.style.left = `${50 + Math.cos(angle) * 30}%`;
+    dot.style.top = `${50 + Math.sin(angle) * 30}%`;
+    dot.style.animationDelay = `${i * 0.15}s`;
+    sparkleWrap.appendChild(dot);
+  }
+
+  function showFortune() {
+    // Pick random fortune (avoid repeats)
+    let idx;
+    do {
+      idx = Math.floor(Math.random() * fortunes.length);
+    } while (idx === lastIndex && fortunes.length > 1);
+    lastIndex = idx;
+
+    cookie.classList.add('cracked');
+    setTimeout(() => {
+      cookie.classList.add('hidden');
+      fortuneText.textContent = fortunes[idx];
+      slip.classList.remove('hidden');
+      againBtn.classList.remove('hidden');
+    }, 500);
+  }
+
+  cookie.addEventListener('click', showFortune);
+
+  againBtn.addEventListener('click', () => {
+    slip.classList.add('hidden');
+    againBtn.classList.add('hidden');
+    cookie.classList.remove('cracked', 'hidden');
+
+    // Small delay before allowing next crack
+    setTimeout(() => {
+      // ready for next tap
+    }, 300);
+  });
+}
+
+
+/* ═══════════════════════════════════════════════════
+   11. VOICE NOTE PLAYER
    ═══════════════════════════════════════════════════ */
 const voicenoteBtn   = document.getElementById('voicenote-btn');
 const voicenoteAudio = document.getElementById('voicenote-audio');
@@ -364,7 +633,7 @@ voicenoteAudio.addEventListener('ended', () => {
 
 
 /* ═══════════════════════════════════════════════════
-   10. CATCH THE HEARTS MINI GAME 🎮
+   12. CATCH THE HEARTS MINI GAME 🎮
    ═══════════════════════════════════════════════════ */
 const gameCanvas  = document.getElementById('game-canvas');
 const gameCtx     = gameCanvas.getContext('2d');
@@ -525,7 +794,7 @@ gameContinue.addEventListener('click', () => {
 
 
 /* ═══════════════════════════════════════════════════
-   11. ANIMATED EKG HEARTBEAT MONITOR
+   13. ANIMATED EKG HEARTBEAT MONITOR
        Flatline → normal heartbeat → heart shape
    ═══════════════════════════════════════════════════ */
 function initEKGMonitor() {
@@ -703,7 +972,7 @@ function initEKGMonitor() {
 
 
 /* ═══════════════════════════════════════════════════
-   12. PHOTO LIGHTBOX
+   14. PHOTO LIGHTBOX
    ═══════════════════════════════════════════════════ */
 const lightbox     = document.getElementById('lightbox');
 const lightboxImg  = document.getElementById('lightbox-img');
@@ -726,7 +995,7 @@ document.addEventListener('keydown', (e) => {
 
 
 /* ═══════════════════════════════════════════════════
-   13. PROPOSAL BUTTONS
+   15. PROPOSAL BUTTONS
    ═══════════════════════════════════════════════════ */
 const btnYes    = document.getElementById('btn-yes');
 const btnNo     = document.getElementById('btn-no');
@@ -766,7 +1035,7 @@ btnNo.addEventListener('touchstart', (e) => { e.preventDefault(); dodgeButton();
 
 
 /* ═══════════════════════════════════════════════════
-   14. CONFETTI 🎉
+   16. CONFETTI 🎉
    ═══════════════════════════════════════════════════ */
 function launchConfetti() {
   const canvas = document.getElementById('confetti-canvas');
@@ -858,7 +1127,7 @@ function launchConfetti() {
 
 
 /* ═══════════════════════════════════════════════════
-   15. WEB3FORMS NOTIFICATION
+   17. WEB3FORMS NOTIFICATION
    ═══════════════════════════════════════════════════ */
 function sendNotification(answer) {
   const timestamp = new Date().toLocaleString('en-US', {
@@ -878,7 +1147,7 @@ function sendNotification(answer) {
 
 
 /* ═══════════════════════════════════════════════════
-   16. WINDOW RESIZE HANDLER
+   18. WINDOW RESIZE HANDLER
    ═══════════════════════════════════════════════════ */
 window.addEventListener('resize', () => {
   const canvas = document.getElementById('confetti-canvas');
