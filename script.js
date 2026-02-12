@@ -14,7 +14,9 @@ const CONFIG = {
   // ── PLAYLIST ──
   // Add more songs: { src: 'hersong/song2.mp3', name: 'Song Name' }
   playlist: [
-    { src: 'hersong/hersong.mp3', name: 'Her Song 💕' },
+    { src: 'hersong/hersong.mp3', name: 'MAGIC💕' },
+    { src: "hersong/hersong2.mp3", name: "4VER💖" },
+    { src: "hersong/hersong3.mp3", name: "YOU'RE STILL THE ONE💘" }
   ],
 };
 
