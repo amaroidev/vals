@@ -1,8 +1,8 @@
-/* ╔══════════════════════════════════════════════════╗
-   ║  Valentine Proposal for Ama — style.css          ║
-   ║  Pink / Rose-Gold / Deep Red romantic palette     ║
-   ║  Nurse-themed EKG heartbeat dividers              ║
-   ╚══════════════════════════════════════════════════╝ */
+/* ╔══════════════════════════════════════════════════════════╗
+   ║  Valentine Proposal for Ama — style.css (Enhanced)     ║
+   ║  + Rose petals, cursor trail, page transitions,        ║
+   ║    EKG monitor, playlist UI, voice note, mini game     ║
+   ╚══════════════════════════════════════════════════════════╝ */
 
 /* ── VARIABLES ── */
 :root {
@@ -29,8 +29,16 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
-
 .hidden { display: none !important; }
+
+/* ══════════════════════════════════════════
+   CURSOR TRAIL CANVAS
+   ══════════════════════════════════════════ */
+#cursor-trail {
+  position: fixed; inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+}
 
 /* ══════════════════════════════════════════
    SPLASH / ENVELOPE SCREEN
@@ -42,57 +50,35 @@ body {
   cursor: pointer;
   transition: opacity 0.8s ease, visibility 0.8s ease;
 }
-#splash.fade-out {
-  opacity: 0; visibility: hidden; pointer-events: none;
-}
+#splash.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
 
 .envelope-wrapper { text-align: center; animation: floatIn 1s ease-out; }
-
-.envelope {
-  position: relative;
-  width: 200px; height: 140px;
-  margin: 0 auto 30px;
-}
+.envelope { position: relative; width: 200px; height: 140px; margin: 0 auto 30px; }
 .envelope-body {
-  position: absolute; bottom: 0;
-  width: 100%; height: 100px;
+  position: absolute; bottom: 0; width: 100%; height: 100px;
   background: linear-gradient(135deg, #f7d1d1, #f9e0e0);
   border-radius: 4px;
   box-shadow: 0 8px 30px rgba(232, 74, 122, 0.3);
   display: flex; align-items: center; justify-content: center;
 }
-.letter-peek {
-  font-size: 2.5rem;
-  animation: letterBounce 2s ease-in-out infinite;
-}
+.letter-peek { font-size: 2.5rem; animation: letterBounce 2s ease-in-out infinite; }
 .envelope-flap {
   position: absolute; top: 0; left: 0;
   width: 0; height: 0;
   border-left: 100px solid transparent;
   border-right: 100px solid transparent;
   border-top: 70px solid #e8a0a0;
-  z-index: 2;
-  transform-origin: top center;
+  z-index: 2; transform-origin: top center;
   animation: flapWave 3s ease-in-out infinite;
 }
-
 .splash-text {
   font-family: var(--font-script);
   font-size: clamp(1.3rem, 4vw, 2rem);
-  color: var(--rose-gold);
-  margin-bottom: 15px;
+  color: var(--rose-gold); margin-bottom: 15px;
   text-shadow: 0 0 20px rgba(232, 160, 160, 0.4);
 }
-.highlight {
-  color: var(--pink);
-  font-weight: 700;
-  text-shadow: 0 0 15px rgba(255, 107, 138, 0.5);
-}
-
-.pulse-hint {
-  font-size: 2rem;
-  animation: pulse 1.5s ease-in-out infinite;
-}
+.highlight { color: var(--pink); font-weight: 700; text-shadow: 0 0 15px rgba(255, 107, 138, 0.5); }
+.pulse-hint { font-size: 2rem; animation: pulse 1.5s ease-in-out infinite; }
 
 /* ══════════════════════════════════════════
    MAIN CONTENT
@@ -100,55 +86,78 @@ body {
 #main-content {
   position: relative;
   background: linear-gradient(180deg,
-    #1a0a10 0%,
-    #2d0a1a 20%,
-    #1a0a10 40%,
-    #2d0a1a 60%,
-    #1a0a10 80%,
-    #2d0a1a 100%
-  );
+    #1a0a10 0%, #2d0a1a 20%, #1a0a10 40%,
+    #2d0a1a 60%, #1a0a10 80%, #2d0a1a 100%);
 }
 
-/* ── FLOATING HEARTS (background) ── */
+/* ── FLOATING HEARTS + PETALS ── */
 #floating-hearts {
   position: fixed; inset: 0; z-index: 0;
   pointer-events: none; overflow: hidden;
 }
-.floating-heart {
-  position: absolute;
-  font-size: var(--size, 1.2rem);
-  opacity: var(--opacity, 0.15);
-  bottom: -50px;
+.floating-heart, .floating-petal {
+  position: absolute; bottom: -50px;
   animation: floatUp var(--duration, 12s) linear infinite;
   animation-delay: var(--delay, 0s);
   left: var(--left, 50%);
 }
+.floating-heart {
+  font-size: var(--size, 1.2rem);
+  opacity: var(--opacity, 0.15);
+}
+.floating-petal {
+  width: var(--petal-size, 12px);
+  height: var(--petal-size, 12px);
+  background: radial-gradient(ellipse, var(--petal-color, rgba(255,107,138,0.6)), transparent);
+  border-radius: 50% 0 50% 0;
+  opacity: var(--opacity, 0.25);
+  transform: rotate(var(--rotation, 45deg));
+  animation: floatUpSway var(--duration, 14s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
 
-/* ── MUSIC TOGGLE ── */
+/* ── MUSIC PLAYER (playlist) ── */
+#music-player {
+  position: fixed; top: 15px; right: 15px; z-index: 1000;
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(26, 10, 16, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 107, 138, 0.2);
+  border-radius: 30px;
+  padding: 6px 12px;
+}
+.music-ctrl {
+  background: none; border: none; color: var(--rose-gold);
+  font-size: 1rem; cursor: pointer;
+  transition: color 0.3s, transform 0.2s;
+  padding: 4px;
+}
+.music-ctrl:hover { color: var(--pink); transform: scale(1.2); }
 #music-toggle {
-  position: fixed; top: 20px; right: 20px; z-index: 1000;
-  width: 50px; height: 50px;
-  border: 2px solid var(--pink);
-  border-radius: 50%;
-  background: rgba(26, 10, 16, 0.7);
-  backdrop-filter: blur(10px);
-  cursor: pointer;
+  width: 42px; height: 42px;
+  border: 2px solid var(--pink); border-radius: 50%;
+  background: rgba(26, 10, 16, 0.5);
+  cursor: pointer; position: relative;
   display: flex; align-items: center; justify-content: center;
   transition: all 0.3s ease;
 }
 #music-toggle:hover { background: rgba(255, 107, 138, 0.2); transform: scale(1.1); }
 #music-toggle.playing .music-icon { animation: musicBounce 0.6s ease infinite; }
-.music-icon { font-size: 1.3rem; color: var(--pink); }
+.music-icon { font-size: 1.1rem; color: var(--pink); }
 .music-pulse {
   position: absolute; inset: -4px;
-  border: 2px solid var(--pink);
-  border-radius: 50%;
-  opacity: 0;
+  border: 2px solid var(--pink); border-radius: 50%; opacity: 0;
 }
 #music-toggle.playing .music-pulse { animation: musicPulseRing 1.5s ease-out infinite; }
+.music-track-name {
+  font-size: 0.65rem; color: var(--rose-gold);
+  max-width: 90px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+  opacity: 0.7;
+}
 
 /* ══════════════════════════════════════════
-   SECTION: INTRO / LOVE LETTER
+   SECTIONS — Page Transition Animations
    ══════════════════════════════════════════ */
 .section {
   position: relative; z-index: 1;
@@ -157,66 +166,51 @@ body {
   align-items: center; justify-content: center;
   padding: 60px 20px;
 }
-
-.heartbeat-line {
-  position: absolute; top: 0; width: 100%;
-  opacity: 0.15;
+/* Storybook page-turn reveal */
+.page-section {
+  opacity: 0;
+  transform: translateY(60px) scale(0.97);
+  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
+.page-section.page-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.heartbeat-line { position: absolute; top: 0; width: 100%; opacity: 0.15; }
 .heartbeat-line svg { width: 100%; height: 60px; }
 
 .intro-content { text-align: center; max-width: 700px; }
-
 .love-title {
   font-family: var(--font-script);
   font-size: clamp(2rem, 7vw, 3.8rem);
-  color: var(--white);
-  margin-bottom: 30px;
+  color: var(--white); margin-bottom: 30px;
   text-shadow: 0 0 30px rgba(255, 107, 138, 0.3);
 }
-
 .love-letter {
-  font-family: var(--font-serif);
-  font-style: italic;
+  font-family: var(--font-serif); font-style: italic;
   font-size: clamp(1rem, 2.5vw, 1.25rem);
-  line-height: 1.9;
-  color: var(--rose-gold);
-  min-height: 180px;
-  text-align: center;
-  padding: 0 10px;
+  line-height: 1.9; color: var(--rose-gold);
+  min-height: 180px; text-align: center; padding: 0 10px;
 }
 .love-letter .cursor {
-  display: inline-block;
-  width: 2px; height: 1.2em;
-  background: var(--pink);
-  margin-left: 3px;
+  display: inline-block; width: 2px; height: 1.2em;
+  background: var(--pink); margin-left: 3px;
   animation: blink 0.8s step-end infinite;
   vertical-align: text-bottom;
 }
-
-.letter-heart {
-  font-size: 2.5rem;
-  margin-top: 25px;
-  animation: pulse 1.5s ease-in-out infinite;
-}
+.letter-heart { font-size: 2.5rem; margin-top: 25px; animation: pulse 1.5s ease-in-out infinite; }
 
 /* ══════════════════════════════════════════
    EKG DIVIDER (nurse-themed)
    ══════════════════════════════════════════ */
-.ekg-divider {
-  position: relative; z-index: 1;
-  width: 100%;
-  padding: 10px 0;
-  opacity: 0.25;
-}
+.ekg-divider { position: relative; z-index: 1; width: 100%; padding: 10px 0; opacity: 0.25; }
 .ekg-divider svg { width: 100%; height: 60px; }
 .ekg-line {
-  fill: none;
-  stroke: var(--pink);
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 1200;
-  stroke-dashoffset: 1200;
+  fill: none; stroke: var(--pink);
+  stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 1200; stroke-dashoffset: 1200;
   animation: drawEKG 3s ease forwards;
 }
 
@@ -226,31 +220,22 @@ body {
 .section-title {
   font-family: var(--font-script);
   font-size: clamp(1.8rem, 5vw, 3rem);
-  color: var(--pink);
-  text-align: center;
-  margin-bottom: 10px;
+  color: var(--pink); text-align: center; margin-bottom: 10px;
   text-shadow: 0 0 20px rgba(255, 107, 138, 0.3);
 }
 .section-subtitle {
-  font-size: 1rem;
-  color: var(--rose-gold);
-  text-align: center;
-  margin-bottom: 50px;
-  opacity: 0.7;
+  font-size: 1rem; color: var(--rose-gold);
+  text-align: center; margin-bottom: 50px; opacity: 0.7;
 }
-
 .reasons-grid {
   display: flex; flex-direction: column;
-  gap: 40px; max-width: 800px;
-  width: 100%; margin: 0 auto;
+  gap: 40px; max-width: 800px; width: 100%; margin: 0 auto;
 }
-
 .reason-card {
   display: flex; gap: 25px;
   background: rgba(255, 240, 243, 0.04);
   border: 1px solid rgba(255, 107, 138, 0.12);
-  border-radius: 20px;
-  padding: 20px;
+  border-radius: 20px; padding: 20px;
   backdrop-filter: blur(6px);
   transition: transform 0.4s ease, box-shadow 0.4s ease;
   animation-delay: var(--delay, 0s);
@@ -260,38 +245,26 @@ body {
   box-shadow: 0 15px 40px rgba(255, 107, 138, 0.15);
 }
 .reason-card:nth-child(even) { flex-direction: row-reverse; }
-
 .reason-img-wrap {
   flex-shrink: 0; width: 180px; height: 220px;
   border-radius: 16px; overflow: hidden;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-  cursor: pointer;
-  transition: transform 0.3s ease;
+  cursor: pointer; transition: transform 0.3s ease;
 }
 .reason-img-wrap:hover { transform: scale(1.03); }
 .reason-img-wrap img {
-  width: 100%; height: 100%;
-  object-fit: cover;
+  width: 100%; height: 100%; object-fit: cover;
   transition: transform 0.6s ease;
 }
 .reason-img-wrap:hover img { transform: scale(1.08); }
-
-.reason-text {
-  display: flex; flex-direction: column;
-  justify-content: center; flex: 1;
-}
+.reason-text { display: flex; flex-direction: column; justify-content: center; flex: 1; }
 .reason-number {
-  font-family: var(--font-script);
-  font-size: 2.5rem;
-  color: var(--pink);
-  opacity: 0.3;
-  line-height: 1;
-  margin-bottom: 8px;
+  font-family: var(--font-script); font-size: 2.5rem;
+  color: var(--pink); opacity: 0.3; line-height: 1; margin-bottom: 8px;
 }
 .reason-text p {
   font-size: clamp(0.95rem, 2vw, 1.1rem);
-  line-height: 1.7;
-  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.7; color: rgba(255, 255, 255, 0.85);
 }
 
 /* ══════════════════════════════════════════
@@ -299,73 +272,170 @@ body {
    ══════════════════════════════════════════ */
 .distance-content { text-align: center; }
 .distance-sub {
-  font-size: 1.05rem;
-  color: var(--rose-gold);
-  opacity: 0.7;
-  margin-bottom: 40px;
+  font-size: 1.05rem; color: var(--rose-gold); opacity: 0.7; margin-bottom: 40px;
 }
-
 .heartbeat-counter { position: relative; }
-.big-heart {
-  font-size: 5rem;
-  animation: pulse 1.5s ease-in-out infinite;
-  margin-bottom: 20px;
-}
-
+.big-heart { font-size: 5rem; animation: pulse 1.5s ease-in-out infinite; margin-bottom: 20px; }
 .love-timer {
-  display: flex;
-  align-items: center; justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   gap: 8px; flex-wrap: wrap;
 }
 .timer-unit { text-align: center; }
 .timer-num {
-  display: block;
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: clamp(2rem, 6vw, 3.5rem);
-  color: var(--pink);
-  text-shadow: 0 0 20px rgba(255, 107, 138, 0.4);
-  line-height: 1.2;
+  display: block; font-family: var(--font-body); font-weight: 600;
+  font-size: clamp(2rem, 6vw, 3.5rem); color: var(--pink);
+  text-shadow: 0 0 20px rgba(255, 107, 138, 0.4); line-height: 1.2;
 }
 .timer-label {
-  font-size: 0.75rem;
-  color: var(--rose-gold);
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  opacity: 0.6;
+  font-size: 0.75rem; color: var(--rose-gold);
+  text-transform: uppercase; letter-spacing: 2px; opacity: 0.6;
 }
 .timer-sep {
-  font-size: 2rem; color: var(--rose-gold);
-  opacity: 0.3; align-self: flex-start;
-  padding-top: 8px;
+  font-size: 2rem; color: var(--rose-gold); opacity: 0.3;
+  align-self: flex-start; padding-top: 8px;
 }
 .timer-caption {
-  margin-top: 20px;
-  font-family: var(--font-serif);
-  font-style: italic;
-  color: var(--rose-gold);
-  font-size: 1.1rem;
+  margin-top: 20px; font-family: var(--font-serif);
+  font-style: italic; color: var(--rose-gold); font-size: 1.1rem;
+}
+
+/* ══════════════════════════════════════════
+   SECTION: VOICE NOTE
+   ══════════════════════════════════════════ */
+.voicenote-content { text-align: center; }
+.voicenote-player { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+.voicenote-btn {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  border: 3px solid var(--pink);
+  background: rgba(255, 107, 138, 0.1);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  transition: all 0.3s ease;
+}
+.voicenote-btn:hover {
+  background: rgba(255, 107, 138, 0.2);
+  transform: scale(1.05);
+  box-shadow: 0 0 40px rgba(255, 107, 138, 0.3);
+}
+.voicenote-btn.playing {
+  border-color: var(--gold);
+  box-shadow: 0 0 40px rgba(245, 199, 126, 0.3);
+}
+.voicenote-icon {
+  font-size: 2.5rem; color: var(--pink);
+  transition: transform 0.3s;
+}
+.voicenote-btn.playing .voicenote-icon { color: var(--gold); }
+.voicenote-waves {
+  position: absolute; bottom: -25px;
+  display: flex; gap: 3px; align-items: flex-end;
+  height: 20px; opacity: 0;
+  transition: opacity 0.3s;
+}
+.voicenote-btn.playing .voicenote-waves { opacity: 1; }
+.voicenote-waves span {
+  display: block; width: 3px;
+  background: var(--pink); border-radius: 3px;
+  animation: waveBar 0.6s ease-in-out infinite alternate;
+}
+.voicenote-waves span:nth-child(1)  { height: 6px;  animation-delay: 0s; }
+.voicenote-waves span:nth-child(2)  { height: 12px; animation-delay: 0.1s; }
+.voicenote-waves span:nth-child(3)  { height: 18px; animation-delay: 0.15s; }
+.voicenote-waves span:nth-child(4)  { height: 10px; animation-delay: 0.2s; }
+.voicenote-waves span:nth-child(5)  { height: 16px; animation-delay: 0.25s; }
+.voicenote-waves span:nth-child(6)  { height: 8px;  animation-delay: 0.3s; }
+.voicenote-waves span:nth-child(7)  { height: 14px; animation-delay: 0.35s; }
+.voicenote-waves span:nth-child(8)  { height: 20px; animation-delay: 0.4s; }
+.voicenote-waves span:nth-child(9)  { height: 11px; animation-delay: 0.45s; }
+.voicenote-waves span:nth-child(10) { height: 7px;  animation-delay: 0.5s; }
+.voicenote-label {
+  font-family: var(--font-serif); font-style: italic;
+  color: var(--rose-gold); opacity: 0.6; font-size: 0.95rem;
+  margin-top: 10px;
+}
+
+/* ══════════════════════════════════════════
+   SECTION: CATCH THE HEARTS GAME
+   ══════════════════════════════════════════ */
+.game-area-wrap {
+  position: relative; width: 100%; max-width: 500px;
+  margin: 0 auto;
+}
+.game-hud {
+  display: flex; justify-content: space-between;
+  padding: 10px 15px;
+  font-size: 1.2rem; font-weight: 600;
+  color: var(--pink);
+}
+#game-canvas {
+  width: 100%; height: 350px;
+  background: rgba(255, 240, 243, 0.03);
+  border: 1px solid rgba(255, 107, 138, 0.15);
+  border-radius: 16px;
+  cursor: pointer;
+  touch-action: none;
+}
+.game-start-btn { margin-top: 20px; }
+.game-over {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: rgba(26, 10, 16, 0.9);
+  border-radius: 16px;
+  backdrop-filter: blur(6px);
+  animation: fadeIn 0.4s ease;
+}
+.game-over-text {
+  font-family: var(--font-script);
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  color: var(--pink);
+  margin-bottom: 25px;
+  text-align: center;
+  padding: 0 20px;
+}
+
+/* ══════════════════════════════════════════
+   SECTION: EKG HEARTBEAT MONITOR
+   ══════════════════════════════════════════ */
+.ekg-monitor {
+  width: 100%; max-width: 600px;
+  margin-bottom: 40px;
+}
+.ekg-screen {
+  position: relative;
+  background: rgba(0, 20, 10, 0.8);
+  border: 2px solid rgba(255, 107, 138, 0.3);
+  border-radius: 16px;
+  padding: 15px;
+  box-shadow: 0 0 30px rgba(255, 107, 138, 0.1),
+              inset 0 0 40px rgba(0, 0, 0, 0.5);
+}
+#ekg-canvas {
+  width: 100%; height: 150px;
+  border-radius: 8px;
+}
+.ekg-label {
+  position: absolute; top: 20px; right: 25px;
+  font-family: var(--font-body); font-weight: 600;
+  font-size: 0.85rem; color: var(--pink);
+  opacity: 0.7; letter-spacing: 2px;
 }
 
 /* ══════════════════════════════════════════
    SECTION: THE PROPOSAL
    ══════════════════════════════════════════ */
 #proposal { min-height: 100vh; }
-
-.proposal-content {
-  text-align: center;
-  position: relative;
-}
+.proposal-content { text-align: center; position: relative; }
 .proposal-heart-bg {
   position: absolute;
   font-size: clamp(8rem, 30vw, 18rem);
-  opacity: 0.05;
-  top: 50%; left: 50%;
+  opacity: 0.05; top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   animation: pulse 2s ease-in-out infinite;
   pointer-events: none;
 }
-
 .proposal-title {
   font-family: var(--font-script);
   font-size: clamp(2rem, 7vw, 3.5rem);
@@ -375,32 +445,20 @@ body {
 .proposal-question {
   font-family: var(--font-serif);
   font-size: clamp(1.3rem, 4vw, 2rem);
-  font-style: italic;
-  color: var(--rose-gold);
+  font-style: italic; color: var(--rose-gold);
   margin-bottom: 45px;
   animation: pulse 2.5s ease-in-out infinite;
 }
-
 .proposal-buttons {
-  display: flex; gap: 25px;
-  justify-content: center;
-  flex-wrap: wrap;
-  position: relative;
+  display: flex; gap: 25px; justify-content: center;
+  flex-wrap: wrap; position: relative;
 }
-
 .btn-proposal {
-  font-family: var(--font-body);
-  font-size: 1.3rem;
-  font-weight: 600;
-  padding: 16px 50px;
-  border: none;
-  border-radius: 50px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
+  font-family: var(--font-body); font-size: 1.3rem; font-weight: 600;
+  padding: 16px 50px; border: none; border-radius: 50px;
+  cursor: pointer; transition: all 0.3s ease;
+  position: relative; overflow: hidden;
 }
-
 .btn-yes {
   background: linear-gradient(135deg, var(--pink), var(--rose));
   color: var(--white);
@@ -411,17 +469,14 @@ body {
   box-shadow: 0 12px 40px rgba(255, 107, 138, 0.6);
 }
 .btn-yes::before {
-  content: '';
-  position: absolute; inset: 0;
+  content: ''; position: absolute; inset: 0;
   background: linear-gradient(135deg, transparent, rgba(255,255,255,0.2), transparent);
   transform: translateX(-100%);
   transition: transform 0.6s ease;
 }
 .btn-yes:hover::before { transform: translateX(100%); }
-
 .btn-no {
-  background: transparent;
-  color: var(--rose-gold);
+  background: transparent; color: var(--rose-gold);
   border: 2px solid rgba(232, 160, 160, 0.3);
   transition: all 0.15s ease;
 }
@@ -435,13 +490,11 @@ body {
   background: radial-gradient(ellipse at center, #2d0a1a 0%, #0d0208 100%);
 }
 #confetti-canvas {
-  position: absolute; inset: 0;
-  z-index: 0; pointer-events: none;
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
 }
 .yes-content {
   position: relative; z-index: 1;
-  text-align: center;
-  padding: 30px;
+  text-align: center; padding: 30px;
   animation: zoomIn 0.6s ease-out;
 }
 .yes-hearts {
@@ -453,18 +506,14 @@ body {
 .yes-title {
   font-family: var(--font-script);
   font-size: clamp(2.5rem, 8vw, 5rem);
-  color: var(--pink);
-  margin-bottom: 25px;
+  color: var(--pink); margin-bottom: 25px;
   text-shadow: 0 0 40px rgba(255, 107, 138, 0.5);
 }
 .yes-message {
-  font-family: var(--font-serif);
-  font-style: italic;
+  font-family: var(--font-serif); font-style: italic;
   font-size: clamp(1rem, 2.5vw, 1.3rem);
-  line-height: 2;
-  color: var(--rose-gold);
-  max-width: 600px;
-  margin: 0 auto;
+  line-height: 2; color: var(--rose-gold);
+  max-width: 600px; margin: 0 auto;
 }
 
 /* ══════════════════════════════════════════
@@ -474,8 +523,7 @@ body {
   position: fixed; inset: 0; z-index: 8000;
   background: rgba(0, 0, 0, 0.92);
   display: flex; align-items: center; justify-content: center;
-  backdrop-filter: blur(8px);
-  animation: fadeIn 0.3s ease;
+  backdrop-filter: blur(8px); animation: fadeIn 0.3s ease;
 }
 .lightbox img {
   max-width: 90vw; max-height: 85vh;
@@ -485,10 +533,8 @@ body {
 }
 .lightbox-close {
   position: absolute; top: 20px; right: 25px;
-  font-size: 2.5rem;
-  color: var(--white);
-  background: none; border: none;
-  cursor: pointer;
+  font-size: 2.5rem; color: var(--white);
+  background: none; border: none; cursor: pointer;
   transition: color 0.3s ease, transform 0.3s ease;
   line-height: 1;
 }
@@ -498,15 +544,11 @@ body {
    REVEAL ANIMATION
    ══════════════════════════════════════════ */
 .reveal {
-  opacity: 0;
-  transform: translateY(40px);
+  opacity: 0; transform: translateY(40px);
   transition: opacity 0.8s ease, transform 0.8s ease;
   transition-delay: var(--delay, 0s);
 }
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+.reveal.visible { opacity: 1; transform: translateY(0); }
 
 /* ══════════════════════════════════════════
    KEYFRAMES
@@ -538,6 +580,13 @@ body {
   0%   { transform: translateY(0) rotate(0deg); opacity: var(--opacity, 0.15); }
   100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
 }
+@keyframes floatUpSway {
+  0%   { transform: translateY(0) rotate(var(--rotation, 45deg)) translateX(0); opacity: var(--opacity, 0.25); }
+  25%  { transform: translateY(-28vh) rotate(calc(var(--rotation, 45deg) + 30deg)) translateX(20px); }
+  50%  { transform: translateY(-55vh) rotate(calc(var(--rotation, 45deg) + 60deg)) translateX(-15px); }
+  75%  { transform: translateY(-82vh) rotate(calc(var(--rotation, 45deg) + 90deg)) translateX(10px); }
+  100% { transform: translateY(-115vh) rotate(calc(var(--rotation, 45deg) + 120deg)) translateX(0); opacity: 0; }
+}
 @keyframes musicBounce {
   0%, 100% { transform: scale(1); }
   50%      { transform: scale(1.15); }
@@ -554,9 +603,9 @@ body {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-@keyframes shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200% center; }
+@keyframes waveBar {
+  from { height: 3px; }
+  to   { height: 20px; }
 }
 
 /* ══════════════════════════════════════════
@@ -565,17 +614,19 @@ body {
 @media (max-width: 600px) {
   .reason-card,
   .reason-card:nth-child(even) {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+    flex-direction: column; align-items: center; text-align: center;
   }
-  .reason-img-wrap {
-    width: 100%; height: 250px;
-  }
+  .reason-img-wrap { width: 100%; height: 250px; }
   .reason-number { text-align: center; }
   .proposal-buttons { flex-direction: column; align-items: center; }
   .btn-proposal { width: 80%; }
   .timer-sep { display: none; }
   .love-timer { gap: 15px; }
-  #music-toggle { top: 12px; right: 12px; width: 42px; height: 42px; }
+  #music-player { top: 8px; right: 8px; padding: 4px 8px; }
+  #music-toggle { width: 36px; height: 36px; }
+  .music-ctrl { font-size: 0.85rem; }
+  .music-track-name { max-width: 60px; font-size: 0.55rem; }
+  #game-canvas { height: 280px; }
+  .voicenote-btn { width: 100px; height: 100px; }
+  .voicenote-icon { font-size: 2rem; }
 }
