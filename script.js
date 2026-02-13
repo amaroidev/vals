@@ -89,6 +89,8 @@ splash.addEventListener('click', () => {
     initEKGMonitor();
     initLDRMap();
     initTimeGreeting();
+    initPhotoPuzzle();
+    initVirtualHug();
   }, 400);
 });
 
@@ -1544,6 +1546,288 @@ function initTimeGreeting() {
   if (mainContent && bodyClass) {
     mainContent.style.background = `var(--time-gradient, linear-gradient(180deg, #1a0a10 0%, #2d0a1a 20%, #1a0a10 40%, #2d0a1a 60%, #1a0a10 80%, #2d0a1a 100%))`;
   }
+}
+
+
+/* ═══════════════════════════════════════════════════
+   21. PHOTO PUZZLE 🧩
+   ═══════════════════════════════════════════════════ */
+function initPhotoPuzzle() {
+  const board = document.getElementById('puzzle-board');
+  const startBtn = document.getElementById('puzzle-start');
+  const completeEl = document.getElementById('puzzle-complete');
+  if (!board || !startBtn) return;
+
+  const imgSrc = 'herpictures/photo2.jpg';
+  const GRID = 3; // 3x3 puzzle
+  let boardSize = board.offsetWidth || 300;
+  const pieceSize = () => boardSize / GRID;
+  let pieces = [];
+  let placedCount = 0;
+  let dragging = null;
+  let dragOffset = { x: 0, y: 0 };
+
+  startBtn.addEventListener('click', () => {
+    startBtn.classList.add('hidden');
+    completeEl.classList.add('hidden');
+    placedCount = 0;
+    pieces = [];
+    board.innerHTML = '';
+    boardSize = board.offsetWidth;
+    // Update board height to match
+    board.style.height = boardSize + 'px';
+    buildPuzzle();
+  });
+
+  function buildPuzzle() {
+    const ps = pieceSize();
+    const allPositions = [];
+
+    // Create pieces
+    for (let row = 0; row < GRID; row++) {
+      for (let col = 0; col < GRID; col++) {
+        allPositions.push({ row, col });
+      }
+    }
+
+    // Shuffle positions for initial placement
+    const shuffled = [...allPositions].sort(() => Math.random() - 0.5);
+
+    allPositions.forEach((pos, idx) => {
+      const piece = document.createElement('div');
+      piece.classList.add('puzzle-piece');
+      piece.dataset.row = pos.row;
+      piece.dataset.col = pos.col;
+
+      // Background shows the correct slice of the image
+      piece.style.width = ps + 'px';
+      piece.style.height = ps + 'px';
+      piece.style.backgroundImage = `url(${imgSrc})`;
+      piece.style.backgroundSize = `${boardSize}px ${boardSize}px`;
+      piece.style.backgroundPosition = `-${pos.col * ps}px -${pos.row * ps}px`;
+
+      // Scatter pieces around the board
+      const scattered = shuffled[idx];
+      const startX = scattered.col * ps + (Math.random() - 0.5) * ps * 0.6;
+      const startY = scattered.row * ps + (Math.random() - 0.5) * ps * 0.6;
+      piece.style.left = startX + 'px';
+      piece.style.top = startY + 'px';
+
+      // Drag events
+      piece.addEventListener('pointerdown', onPointerDown);
+
+      board.appendChild(piece);
+      pieces.push(piece);
+    });
+  }
+
+  function onPointerDown(e) {
+    const piece = e.currentTarget;
+    if (piece.classList.contains('placed')) return;
+    e.preventDefault();
+    piece.setPointerCapture(e.pointerId);
+
+    dragging = piece;
+    piece.classList.add('dragging');
+
+    const boardRect = board.getBoundingClientRect();
+    dragOffset.x = e.clientX - boardRect.left - parseFloat(piece.style.left);
+    dragOffset.y = e.clientY - boardRect.top - parseFloat(piece.style.top);
+
+    piece.addEventListener('pointermove', onPointerMove);
+    piece.addEventListener('pointerup', onPointerUp);
+  }
+
+  function onPointerMove(e) {
+    if (!dragging) return;
+    const boardRect = board.getBoundingClientRect();
+    let x = e.clientX - boardRect.left - dragOffset.x;
+    let y = e.clientY - boardRect.top - dragOffset.y;
+    dragging.style.left = x + 'px';
+    dragging.style.top = y + 'px';
+  }
+
+  function onPointerUp(e) {
+    if (!dragging) return;
+    const piece = dragging;
+    piece.classList.remove('dragging');
+    piece.removeEventListener('pointermove', onPointerMove);
+    piece.removeEventListener('pointerup', onPointerUp);
+
+    // Check if piece is near its correct position
+    const ps = pieceSize();
+    const correctX = parseInt(piece.dataset.col) * ps;
+    const correctY = parseInt(piece.dataset.row) * ps;
+    const curX = parseFloat(piece.style.left);
+    const curY = parseFloat(piece.style.top);
+    const snapThreshold = ps * 0.35;
+
+    if (Math.abs(curX - correctX) < snapThreshold && Math.abs(curY - correctY) < snapThreshold) {
+      // Snap into place
+      piece.style.left = correctX + 'px';
+      piece.style.top = correctY + 'px';
+      piece.classList.add('placed');
+      piece.style.transition = 'left 0.2s ease, top 0.2s ease';
+      placedCount++;
+
+      if (placedCount === GRID * GRID) {
+        onPuzzleComplete();
+      }
+    }
+
+    dragging = null;
+  }
+
+  function onPuzzleComplete() {
+    // Brief delay then show completion
+    setTimeout(() => {
+      // Flash all pieces
+      pieces.forEach(p => {
+        p.style.border = '1px solid rgba(255, 107, 138, 0.4)';
+        p.style.boxShadow = '0 0 20px rgba(255, 107, 138, 0.3)';
+      });
+
+      setTimeout(() => {
+        // Fade away borders to show full image
+        pieces.forEach(p => {
+          p.style.border = 'none';
+          p.style.boxShadow = 'none';
+          p.style.borderRadius = '0';
+        });
+        board.style.borderRadius = '12px';
+        board.style.overflow = 'hidden';
+        board.style.border = '2px solid rgba(255, 107, 138, 0.3)';
+        board.style.boxShadow = '0 0 40px rgba(255, 107, 138, 0.2)';
+
+        completeEl.classList.remove('hidden');
+      }, 800);
+    }, 300);
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════
+   22. VIRTUAL HUG 🤗
+   ═══════════════════════════════════════════════════ */
+function initVirtualHug() {
+  const btn = document.getElementById('hug-btn');
+  const ringFill = document.getElementById('hug-ring-fill');
+  const msgEl = document.getElementById('hug-message');
+  const hugWrap = document.querySelector('.hug-wrap');
+  const hintEl = document.querySelector('.hug-hint');
+  if (!btn || !ringFill) return;
+
+  const HOLD_DURATION = 2500; // ms to complete hug
+  const CIRCUMFERENCE = 2 * Math.PI * 54; // r=54
+  let holdTimer = null;
+  let startTime = 0;
+  let animFrame = null;
+  let completed = false;
+
+  const messages = [
+    "I'm hugging you right now, Ama 🤗",
+    "Feel my arms around you 💖",
+    "You're safe with me, always 🫂",
+    "This hug crosses every mile 🌍❤️",
+    "I never want to let go 💕",
+  ];
+
+  function startHug(e) {
+    if (completed) resetHug();
+    e.preventDefault();
+    startTime = Date.now();
+    btn.classList.add('hugging');
+    if (hintEl) hintEl.style.opacity = '0';
+
+    function updateRing() {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / HOLD_DURATION, 1);
+      const offset = CIRCUMFERENCE * (1 - progress);
+      ringFill.style.strokeDashoffset = offset;
+
+      // Spawn heart particles during hold
+      if (Math.random() < 0.15) spawnHugHeart(btn);
+
+      if (progress >= 1) {
+        completeHug();
+        return;
+      }
+      animFrame = requestAnimationFrame(updateRing);
+    }
+    animFrame = requestAnimationFrame(updateRing);
+  }
+
+  function stopHug(e) {
+    if (completed) return;
+    e.preventDefault();
+    cancelAnimationFrame(animFrame);
+    btn.classList.remove('hugging');
+
+    // Animate ring back to 0
+    ringFill.style.transition = 'stroke-dashoffset 0.5s ease';
+    ringFill.style.strokeDashoffset = CIRCUMFERENCE;
+    setTimeout(() => {
+      ringFill.style.transition = 'stroke-dashoffset 0.1s linear';
+    }, 500);
+  }
+
+  function completeHug() {
+    completed = true;
+    btn.classList.remove('hugging');
+    btn.classList.add('complete');
+
+    // Arms wrap around
+    hugWrap.classList.add('arms-visible');
+
+    // Vibrate if available
+    if (navigator.vibrate) navigator.vibrate([100, 50, 150, 50, 200]);
+
+    // Show message
+    const msg = messages[Math.floor(Math.random() * messages.length)];
+    msgEl.textContent = msg;
+    msgEl.classList.add('show');
+
+    // Burst of hearts
+    for (let i = 0; i < 12; i++) {
+      setTimeout(() => spawnHugHeart(btn), i * 80);
+    }
+
+    // Change emoji
+    const emoji = btn.querySelector('.hug-emoji');
+    if (emoji) emoji.textContent = '🤗';
+  }
+
+  function resetHug() {
+    completed = false;
+    btn.classList.remove('complete');
+    hugWrap.classList.remove('arms-visible');
+    msgEl.classList.remove('show');
+    msgEl.textContent = '';
+    ringFill.style.strokeDashoffset = CIRCUMFERENCE;
+    const emoji = btn.querySelector('.hug-emoji');
+    if (emoji) emoji.textContent = '🫂';
+    if (hintEl) hintEl.style.opacity = '0.5';
+  }
+
+  function spawnHugHeart(anchor) {
+    const hearts = ['❤️', '💖', '💕', '💗', '🩷', '🤗'];
+    const rect = anchor.getBoundingClientRect();
+    const h = document.createElement('div');
+    h.classList.add('hug-heart-particle');
+    h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+    h.style.left = (rect.left + rect.width / 2 + (Math.random() - 0.5) * 60) + 'px';
+    h.style.top = (rect.top + rect.height / 2) + 'px';
+    h.style.fontSize = (0.8 + Math.random() * 1) + 'rem';
+    h.style.setProperty('--duration', (1.5 + Math.random() * 1.5) + 's');
+    document.body.appendChild(h);
+    setTimeout(() => h.remove(), 3000);
+  }
+
+  // Pointer events for press-and-hold (works on both touch & mouse)
+  btn.addEventListener('pointerdown', startHug);
+  btn.addEventListener('pointerup', stopHug);
+  btn.addEventListener('pointerleave', stopHug);
+  btn.addEventListener('pointercancel', stopHug);
 }
 
 

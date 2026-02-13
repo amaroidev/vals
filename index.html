@@ -252,6 +252,35 @@
       </svg>
     </div>
 
+    <!-- ── SECTION: VIRTUAL HUG 🤗 ── -->
+    <section id="virtual-hug" class="section page-section">
+      <div class="hug-content reveal">
+        <h2 class="section-title">Sending You A Hug 🤗</h2>
+        <p class="distance-sub">Press and hold to feel my arms around you...</p>
+        <div class="hug-wrap">
+          <div class="hug-arms-left" aria-hidden="true">🤚</div>
+          <div class="hug-arms-right" aria-hidden="true">🤚</div>
+          <button id="hug-btn" class="hug-btn" aria-label="Press and hold for a hug">
+            <span class="hug-emoji">🫂</span>
+            <div class="hug-glow" aria-hidden="true"></div>
+            <svg class="hug-ring" viewBox="0 0 120 120">
+              <circle class="hug-ring-track" cx="60" cy="60" r="54" />
+              <circle id="hug-ring-fill" class="hug-ring-fill" cx="60" cy="60" r="54" />
+            </svg>
+          </button>
+          <p id="hug-message" class="hug-message"></p>
+          <p class="hug-hint">Hold the button 💖</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- EKG Divider -->
+    <div class="ekg-divider" aria-hidden="true">
+      <svg viewBox="0 0 800 60" preserveAspectRatio="none">
+        <polyline class="ekg-line" points="0,30 200,30 230,30 245,5 260,55 275,10 290,50 305,30 330,30 530,30 560,30 575,5 590,55 605,10 620,50 635,30 660,30 800,30" />
+      </svg>
+    </div>
+
     <!-- ── SECTION 5: HER NAME IN STARS ✨ ── -->
     <section id="starname" class="section page-section">
       <div class="starname-content reveal">
@@ -285,6 +314,29 @@
             <span class="fortune-heart">💖</span>
           </div>
           <button id="fortune-again" class="fortune-again hidden">Another fortune? 🥠</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- EKG Divider -->
+    <div class="ekg-divider" aria-hidden="true">
+      <svg viewBox="0 0 800 60" preserveAspectRatio="none">
+        <polyline class="ekg-line" points="0,30 200,30 230,30 245,5 260,55 275,10 290,50 305,30 330,30 530,30 560,30 575,5 590,55 605,10 620,50 635,30 660,30 800,30" />
+      </svg>
+    </div>
+
+    <!-- ── SECTION: PHOTO PUZZLE 🧩 ── -->
+    <section id="photo-puzzle" class="section page-section">
+      <div class="puzzle-content reveal">
+        <h2 class="section-title">Piece Us Together 🧩</h2>
+        <p class="distance-sub">Drag the pieces to rebuild our picture...</p>
+        <div class="puzzle-area-wrap">
+          <div id="puzzle-board" class="puzzle-board"></div>
+          <button id="puzzle-start" class="btn-proposal btn-yes puzzle-start-btn">Start Puzzle 🧩</button>
+          <div id="puzzle-complete" class="puzzle-complete hidden">
+            <p class="puzzle-complete-text">You completed us 💖</p>
+            <p class="puzzle-complete-sub">Just like how you complete my life, Ama</p>
+          </div>
         </div>
       </div>
     </section>

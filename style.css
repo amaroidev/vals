@@ -1032,6 +1032,214 @@ body.time-night {
 }
 
 /* ══════════════════════════════════════════
+   SECTION: VIRTUAL HUG 🤗
+   ══════════════════════════════════════════ */
+.hug-content { text-align: center; }
+.hug-wrap {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 20px;
+  position: relative;
+}
+.hug-btn {
+  position: relative;
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 107, 138, 0.08);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.3s ease;
+  -webkit-user-select: none; user-select: none;
+  touch-action: none;
+}
+.hug-btn:hover { transform: scale(1.05); }
+.hug-emoji {
+  font-size: 3.5rem;
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative; z-index: 2;
+}
+.hug-btn.hugging .hug-emoji {
+  transform: scale(1.3);
+}
+
+/* SVG progress ring */
+.hug-ring {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+.hug-ring-track {
+  fill: none;
+  stroke: rgba(255, 107, 138, 0.15);
+  stroke-width: 4;
+}
+.hug-ring-fill {
+  fill: none;
+  stroke: var(--pink);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 339.292;
+  stroke-dashoffset: 339.292;
+  transition: stroke-dashoffset 0.1s linear;
+  filter: drop-shadow(0 0 6px rgba(255, 107, 138, 0.6));
+}
+
+/* Warm glow behind button */
+.hug-glow {
+  position: absolute; inset: -30px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 107, 138, 0.3) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+.hug-btn.hugging .hug-glow {
+  opacity: 1;
+  transform: scale(1.4);
+}
+.hug-btn.complete .hug-glow {
+  opacity: 1;
+  transform: scale(2);
+  background: radial-gradient(circle, rgba(255, 200, 100, 0.35) 0%, rgba(255, 107, 138, 0.2) 40%, transparent 70%);
+}
+
+/* Arms that wrap around */
+.hug-arms-left, .hug-arms-right {
+  position: absolute;
+  font-size: 4rem;
+  top: 50%;
+  opacity: 0;
+  transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease;
+  pointer-events: none;
+  z-index: 3;
+}
+.hug-arms-left {
+  left: 50%;
+  transform: translate(-180px, -50%) rotate(40deg) scaleX(-1);
+}
+.hug-arms-right {
+  right: 50%;
+  transform: translate(180px, -50%) rotate(-40deg);
+}
+.hug-wrap.arms-visible .hug-arms-left {
+  opacity: 1;
+  transform: translate(-85px, -50%) rotate(10deg) scaleX(-1);
+}
+.hug-wrap.arms-visible .hug-arms-right {
+  opacity: 1;
+  transform: translate(85px, -50%) rotate(-10deg);
+}
+
+.hug-message {
+  font-family: var(--font-script);
+  font-size: clamp(1.3rem, 4vw, 1.8rem);
+  color: var(--pink);
+  text-shadow: 0 0 20px rgba(255, 107, 138, 0.4);
+  min-height: 2em;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.hug-message.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.hug-hint {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--rose-gold);
+  opacity: 0.5;
+  letter-spacing: 1px;
+}
+
+/* Hug heart particles */
+.hug-heart-particle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 5;
+  animation: hugHeartFloat var(--duration, 2s) ease-out forwards;
+}
+@keyframes hugHeartFloat {
+  0%   { transform: scale(0) translateY(0); opacity: 1; }
+  50%  { transform: scale(1.2) translateY(-50px); opacity: 0.8; }
+  100% { transform: scale(0.6) translateY(-120px); opacity: 0; }
+}
+
+/* ══════════════════════════════════════════
+   SECTION: PHOTO PUZZLE 🧩
+   ══════════════════════════════════════════ */
+.puzzle-content { text-align: center; width: 100%; max-width: 500px; }
+.puzzle-area-wrap {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+}
+.puzzle-board {
+  position: relative;
+  width: 300px; height: 300px;
+  margin: 20px auto;
+  border-radius: 12px;
+  overflow: visible;
+  background: rgba(255, 240, 243, 0.03);
+  border: 2px dashed rgba(255, 107, 138, 0.2);
+  touch-action: none;
+}
+.puzzle-piece {
+  position: absolute;
+  background-size: 300px 300px;
+  border: 1px solid rgba(255, 107, 138, 0.25);
+  cursor: grab;
+  transition: box-shadow 0.3s ease;
+  border-radius: 4px;
+  touch-action: none;
+  -webkit-user-select: none; user-select: none;
+  z-index: 1;
+}
+.puzzle-piece:hover {
+  box-shadow: 0 0 20px rgba(255, 107, 138, 0.4);
+  z-index: 10;
+}
+.puzzle-piece.dragging {
+  cursor: grabbing;
+  z-index: 100;
+  box-shadow: 0 8px 30px rgba(255, 107, 138, 0.5);
+  transform: scale(1.05);
+}
+.puzzle-piece.placed {
+  cursor: default;
+  border-color: rgba(100, 255, 150, 0.4);
+  box-shadow: 0 0 15px rgba(100, 255, 150, 0.2);
+  z-index: 0;
+}
+.puzzle-start-btn { margin-top: 20px; }
+.puzzle-complete {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: rgba(26, 10, 16, 0.9);
+  border-radius: 12px;
+  animation: fadeIn 0.6s ease;
+  z-index: 50;
+}
+.puzzle-complete-text {
+  font-family: var(--font-script);
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  color: var(--pink);
+  margin-bottom: 10px;
+  text-shadow: 0 0 20px rgba(255, 107, 138, 0.4);
+}
+.puzzle-complete-sub {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  color: var(--rose-gold);
+  opacity: 0.8;
+  padding: 0 20px;
+}
+
+/* ══════════════════════════════════════════
    RESPONSIVE
    ══════════════════════════════════════════ */
 @media (max-width: 600px) {
@@ -1071,4 +1279,9 @@ body.time-night {
   .bloom { font-size: 2.2rem; }
   .bloom-6 { font-size: 2.6rem; }
   .bouquet-text { font-size: clamp(1.4rem, 5vw, 2rem); }
+  .hug-btn { width: 120px; height: 120px; }
+  .hug-emoji { font-size: 2.8rem; }
+  .hug-arms-left, .hug-arms-right { font-size: 3rem; }
+  .puzzle-board { width: 260px; height: 260px; }
+  .puzzle-piece { background-size: 260px 260px !important; }
 }
