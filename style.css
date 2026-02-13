@@ -21,7 +21,7 @@
 
 /* ── RESET ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; overflow-x: hidden; }
+html { overflow-x: hidden; }
 body {
   font-family: var(--font-body);
   background: var(--dark);
@@ -100,7 +100,6 @@ body {
   animation: floatUp var(--duration, 12s) linear infinite;
   animation-delay: var(--delay, 0s);
   left: var(--left, 50%);
-  will-change: transform, opacity;
 }
 .floating-heart {
   font-size: var(--size, 1.2rem);
@@ -121,15 +120,13 @@ body {
   opacity: var(--opacity, 0.2);
   animation: floatUpSway var(--duration, 16s) linear infinite;
   animation-delay: var(--delay, 0s);
-  filter: drop-shadow(0 0 6px rgba(255, 107, 138, 0.3));
 }
 
 /* ── MUSIC PLAYER (playlist) ── */
 #music-player {
   position: fixed; top: 15px; right: 15px; z-index: 1000;
   display: flex; align-items: center; gap: 6px;
-  background: rgba(26, 10, 16, 0.8);
-  backdrop-filter: blur(12px);
+  background: rgba(26, 10, 16, 0.95);
   border: 1px solid rgba(255, 107, 138, 0.2);
   border-radius: 30px;
   padding: 6px 12px;
@@ -180,7 +177,6 @@ body {
   transform: translateY(60px) scale(0.97);
   transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
               transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity, transform;
 }
 .page-section.page-visible {
   opacity: 1;
@@ -403,7 +399,7 @@ body {
 }
 .fortune-cookie:hover { transform: scale(1.12) rotate(-5deg); }
 .fortune-cookie:active { transform: scale(0.9); }
-.cookie-emoji { font-size: 6rem; display: block; filter: drop-shadow(0 8px 20px rgba(245, 199, 126, 0.4)); }
+.cookie-emoji { font-size: 6rem; display: block; }
 .cookie-sparkles {
   position: absolute; inset: -20px;
   pointer-events: none;
@@ -1267,12 +1263,22 @@ body.time-night {
   #game-canvas { height: 280px; }
   .voicenote-btn { width: 100px; height: 100px; }
   .voicenote-icon { font-size: 2rem; }
-  /* Reduce floating elements on mobile for performance */
-  .floating-heart:nth-child(n+8),
-  .floating-petal:nth-child(n+22),
-  .floating-flower:nth-child(n+30) { display: none; }
+  /* Drastically reduce floating elements on mobile */
+  .floating-heart:nth-child(n+5),
+  .floating-petal:nth-child(n+6),
+  .floating-flower:nth-child(n+4) { display: none; }
   #cursor-trail { display: none; }
   .floating-flower { filter: none; }
+  /* Disable heavy infinite animations on mobile */
+  .letter-heart, .big-heart, .proposal-heart-bg { animation: none; }
+  .proposal-question { animation: none; }
+  .cookie-sparkle { animation: none; display: none; }
+  .fortune-cookie { animation: none; }
+  .pulse-hint { animation: none; }
+  /* Simplify voicenote waves on mobile */
+  .voicenote-waves span { animation-duration: 1.2s; }
+  /* Sections use content-visibility for offscreen perf */
+  .section { content-visibility: auto; contain-intrinsic-size: auto 100vh; }
   #star-canvas { height: 240px; }
   .fortune-cookie { width: 110px; height: 110px; }
   .cookie-emoji { font-size: 4.5rem; }

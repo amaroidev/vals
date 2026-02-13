@@ -43,27 +43,44 @@ function loadTrack(index) {
 
   // Show loading spinner until audio is ready
   musicBtn.classList.add('loading');
-  bgMusic.addEventListener('canplay', function onReady() {
+  bgMusic.addEventListener('canplaythrough', function onReady() {
     musicBtn.classList.remove('loading');
-    bgMusic.removeEventListener('canplay', onReady);
+    bgMusic.removeEventListener('canplaythrough', onReady);
   });
 }
+
+// ── PRELOAD first track immediately (before splash tap) ──
+// This starts downloading the audio as soon as the page loads,
+// so it's ready to play instantly when Ama taps the envelope.
+loadTrack(0);
+bgMusic.volume = 0.5;
 
 splash.addEventListener('click', () => {
   splash.classList.add('fade-out');
   mainEl.classList.remove('hidden');
 
-  // Load first track & play (with loading state)
+  // Audio should already be loaded — play immediately
   musicBtn.classList.add('loading');
-  loadTrack(0);
-  bgMusic.volume = 0.5;
-  bgMusic.play().then(() => {
-    musicPlaying = true;
-    musicBtn.classList.remove('loading');
-    musicBtn.classList.add('playing');
-  }).catch(() => {
-    musicBtn.classList.remove('loading');
-  });
+  const playAttempt = bgMusic.play();
+  if (playAttempt !== undefined) {
+    playAttempt.then(() => {
+      musicPlaying = true;
+      musicBtn.classList.remove('loading');
+      musicBtn.classList.add('playing');
+    }).catch(() => {
+      // Autoplay blocked — wait for canplaythrough then retry
+      bgMusic.addEventListener('canplaythrough', function retry() {
+        bgMusic.removeEventListener('canplaythrough', retry);
+        bgMusic.play().then(() => {
+          musicPlaying = true;
+          musicBtn.classList.remove('loading');
+          musicBtn.classList.add('playing');
+        }).catch(() => {
+          musicBtn.classList.remove('loading');
+        });
+      });
+    });
+  }
 
   // Hide scroll hint after first scroll
   const scrollHint = document.querySelector('.scroll-hint');
@@ -114,21 +131,34 @@ document.getElementById('music-prev').addEventListener('click', (e) => {
   e.stopPropagation();
   currentTrack = (currentTrack - 1 + CONFIG.playlist.length) % CONFIG.playlist.length;
   loadTrack(currentTrack);
-  if (musicPlaying) bgMusic.play();
+  if (musicPlaying) {
+    bgMusic.addEventListener('canplaythrough', function playWhenReady() {
+      bgMusic.removeEventListener('canplaythrough', playWhenReady);
+      bgMusic.play().catch(() => {});
+    });
+  }
 });
 
 document.getElementById('music-next').addEventListener('click', (e) => {
   e.stopPropagation();
   currentTrack = (currentTrack + 1) % CONFIG.playlist.length;
   loadTrack(currentTrack);
-  if (musicPlaying) bgMusic.play();
+  if (musicPlaying) {
+    bgMusic.addEventListener('canplaythrough', function playWhenReady() {
+      bgMusic.removeEventListener('canplaythrough', playWhenReady);
+      bgMusic.play().catch(() => {});
+    });
+  }
 });
 
 // Auto-advance to next track
 bgMusic.addEventListener('ended', () => {
   currentTrack = (currentTrack + 1) % CONFIG.playlist.length;
   loadTrack(currentTrack);
-  bgMusic.play();
+  bgMusic.addEventListener('canplaythrough', function playWhenReady() {
+    bgMusic.removeEventListener('canplaythrough', playWhenReady);
+    bgMusic.play().catch(() => {});
+  });
 });
 
 
@@ -203,7 +233,7 @@ function spawnFloatingHeartsAndPetals() {
   const hearts = ['❤️', '💕', '💖', '💗', '🩷', '♥', '💘'];
 
   // Floating hearts (fewer on mobile)
-  const heartCount = isMobile ? 7 : 15;
+  const heartCount = isMobile ? 4 : 15;
   for (let i = 0; i < heartCount; i++) {
     const heart = document.createElement('div');
     heart.classList.add('floating-heart');
@@ -224,7 +254,7 @@ function spawnFloatingHeartsAndPetals() {
     'rgba(245,199,126,0.3)',
     'rgba(255,182,193,0.5)',
   ];
-  const petalCount = isMobile ? 8 : 18;
+  const petalCount = isMobile ? 4 : 18;
   for (let i = 0; i < petalCount; i++) {
     const petal = document.createElement('div');
     petal.classList.add('floating-petal');
@@ -240,7 +270,7 @@ function spawnFloatingHeartsAndPetals() {
 
   // 🌸 Floating flowers
   const flowers = ['🌸', '🌺', '🌷', '🌹', '💐', '🌻', '🪷', '🌼'];
-  const flowerCount = isMobile ? 5 : 12;
+  const flowerCount = isMobile ? 3 : 12;
   for (let i = 0; i < flowerCount; i++) {
     const flower = document.createElement('div');
     flower.classList.add('floating-flower');
@@ -296,8 +326,6 @@ function initCursorTrail() {
     }
   }
 
-  document.addEventListener('mousemove', (e) => onMove(e.clientX, e.clientY));
-
   function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -326,9 +354,21 @@ function initCursorTrail() {
     // Limit particle count for performance
     if (particles.length > 120) particles.splice(0, 20);
 
-    requestAnimationFrame(animate);
+    if (particles.length > 0) {
+      requestAnimationFrame(animate);
+    } else {
+      isActive = false;
+    }
   }
-  animate();
+
+  // Only start animation loop when mouse moves (not forever)
+  document.addEventListener('mousemove', (e) => {
+    onMove(e.clientX, e.clientY);
+    if (!isActive) {
+      isActive = true;
+      animate();
+    }
+  }, { passive: true });
 }
 
 
@@ -366,15 +406,16 @@ function initStarName() {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   let animStarted = false;
+  let starVisible = false;
 
   const observer = new IntersectionObserver((entries) => {
-    if (entries[0].isIntersecting && !animStarted) {
+    starVisible = entries[0].isIntersecting;
+    if (starVisible && !animStarted) {
       animStarted = true;
       resizeStarCanvas();
       runStars();
-      observer.disconnect();
     }
-  }, { threshold: 0.3 });
+  }, { threshold: 0.1 });
   observer.observe(canvas);
 
   function resizeStarCanvas() {
@@ -456,6 +497,7 @@ function initStarName() {
     let phase = 'gathering'; // gathering → settled → twinkling
 
     function animate() {
+      if (!starVisible) { requestAnimationFrame(animate); return; }
       // Clear with dark sky
       ctx.fillStyle = 'rgba(5, 2, 16, 0.25)';
       ctx.fillRect(0, 0, W, H);
@@ -833,15 +875,16 @@ function initEKGMonitor() {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   let animStarted = false;
+  let ekgVisible = false;
 
   const observer = new IntersectionObserver((entries) => {
-    if (entries[0].isIntersecting && !animStarted) {
+    ekgVisible = entries[0].isIntersecting;
+    if (ekgVisible && !animStarted) {
       animStarted = true;
       resizeEKG();
       runEKG();
-      observer.disconnect();
     }
-  }, { threshold: 0.3 });
+  }, { threshold: 0.1 });
   observer.observe(canvas);
 
   function resizeEKG() {
@@ -995,7 +1038,15 @@ function initEKGMonitor() {
       // Keep trail manageable
       if (trail.length > 500) trail.splice(0, 100);
 
-      requestAnimationFrame(animate);
+      if (ekgVisible) {
+        requestAnimationFrame(animate);
+      } else {
+        // When visible again, restart
+        const resume = new IntersectionObserver((e) => {
+          if (e[0].isIntersecting) { resume.disconnect(); requestAnimationFrame(animate); }
+        }, { threshold: 0.1 });
+        resume.observe(canvas);
+      }
     }
     animate();
   }
@@ -1262,15 +1313,16 @@ function initLDRMap() {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   let animStarted = false;
+  let mapVisible = false;
 
   const observer = new IntersectionObserver((entries) => {
-    if (entries[0].isIntersecting && !animStarted) {
+    mapVisible = entries[0].isIntersecting;
+    if (mapVisible && !animStarted) {
       animStarted = true;
       resizeMapCanvas();
       runMap();
-      observer.disconnect();
     }
-  }, { threshold: 0.3 });
+  }, { threshold: 0.1 });
   observer.observe(canvas);
 
   function resizeMapCanvas() {
@@ -1340,6 +1392,7 @@ function initLDRMap() {
     }
 
     function animate() {
+      if (!mapVisible) { requestAnimationFrame(animate); return; }
       // Clear
       ctx.fillStyle = 'rgba(5, 3, 16, 0.3)';
       ctx.fillRect(0, 0, W, H);
