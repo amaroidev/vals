@@ -86,6 +86,8 @@ splash.addEventListener('click', () => {
     initStarName();
     initFortuneCookie();
     initEKGMonitor();
+    initLDRMap();
+    initTimeGreeting();
   }, 400);
 });
 
@@ -1176,7 +1178,305 @@ function sendNotification(answer) {
 
 
 /* ═══════════════════════════════════════════════════
-   18. WINDOW RESIZE HANDLER
+   18. LDR MAP ANIMATION ✈️ (Tarkwa ↔ Reading)
+   ═══════════════════════════════════════════════════ */
+function initLDRMap() {
+  const canvas = document.getElementById('map-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let animStarted = false;
+
+  const observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && !animStarted) {
+      animStarted = true;
+      resizeMapCanvas();
+      runMap();
+      observer.disconnect();
+    }
+  }, { threshold: 0.3 });
+  observer.observe(canvas);
+
+  function resizeMapCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+  }
+
+  function runMap() {
+    const W = canvas.width;
+    const H = canvas.height;
+
+    // --- Positions (Tarkwa bottom-left, Reading top-right) ---
+    const tarkwa  = { x: W * 0.15, y: H * 0.72 };
+    const reading = { x: W * 0.85, y: H * 0.25 };
+
+    // Control points for a nice arc (goes up through the "sky")
+    const cp1 = { x: W * 0.35, y: H * 0.08 };
+    const cp2 = { x: W * 0.65, y: H * 0.05 };
+
+    // Background stars
+    const bgStars = [];
+    for (let i = 0; i < 80; i++) {
+      bgStars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        size: Math.random() * 1.5 + 0.3,
+        twinkleSpeed: 0.005 + Math.random() * 0.015,
+        twinkleOffset: Math.random() * Math.PI * 2,
+        brightness: 0.3 + Math.random() * 0.5,
+      });
+    }
+
+    // Bezier helper
+    function bezierPoint(t, p0, p1, p2, p3) {
+      const mt = 1 - t;
+      return {
+        x: mt*mt*mt*p0.x + 3*mt*mt*t*p1.x + 3*mt*t*t*p2.x + t*t*t*p3.x,
+        y: mt*mt*mt*p0.y + 3*mt*mt*t*p1.y + 3*mt*t*t*p2.y + t*t*t*p3.y,
+      };
+    }
+
+    // Build the full path as discrete points for drawing
+    const pathPoints = [];
+    for (let i = 0; i <= 200; i++) {
+      pathPoints.push(bezierPoint(i / 200, tarkwa, cp1, cp2, reading));
+    }
+
+    let time = 0;
+    let dashOffset = 0;
+    let drawProgress = 0; // 0→1 how much of path is drawn
+    const drawSpeed = 0.004;
+
+    // Heart particles that float along the path
+    const hearts = [];
+    let heartSpawnTimer = 0;
+
+    function spawnHeart() {
+      hearts.push({
+        t: 0,
+        speed: 0.002 + Math.random() * 0.002,
+        size: 12 + Math.random() * 10,
+        opacity: 0.7 + Math.random() * 0.3,
+        wobble: Math.random() * Math.PI * 2,
+        wobbleAmp: 3 + Math.random() * 5,
+      });
+    }
+
+    function animate() {
+      // Clear
+      ctx.fillStyle = 'rgba(5, 3, 16, 0.3)';
+      ctx.fillRect(0, 0, W, H);
+
+      time += 0.016;
+      dashOffset -= 0.4;
+
+      // Background stars
+      bgStars.forEach(s => {
+        const twinkle = 0.3 + Math.sin(time * s.twinkleSpeed * 60 + s.twinkleOffset) * 0.35 + 0.35;
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(255, 255, 255, ${twinkle * s.brightness})`;
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Draw path progressively
+      if (drawProgress < 1) {
+        drawProgress = Math.min(1, drawProgress + drawSpeed);
+      }
+
+      const drawnCount = Math.floor(drawProgress * pathPoints.length);
+
+      // --- Dotted path ---
+      if (drawnCount > 1) {
+        ctx.save();
+        ctx.setLineDash([8, 6]);
+        ctx.lineDashOffset = dashOffset;
+        ctx.strokeStyle = 'rgba(255, 107, 138, 0.4)';
+        ctx.lineWidth = 2;
+        ctx.shadowColor = 'rgba(255, 107, 138, 0.3)';
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.moveTo(pathPoints[0].x, pathPoints[0].y);
+        for (let i = 1; i < drawnCount; i++) {
+          ctx.lineTo(pathPoints[i].x, pathPoints[i].y);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // --- City markers ---
+      // Tarkwa
+      drawCityMarker(tarkwa.x, tarkwa.y, '🇬🇭', time);
+      // Reading
+      if (drawProgress >= 1) {
+        drawCityMarker(reading.x, reading.y, '🇬🇧', time);
+      }
+
+      // --- Traveling hearts ---
+      if (drawProgress >= 1) {
+        heartSpawnTimer += 0.016;
+        if (heartSpawnTimer > 1.8) { // spawn every ~1.8s
+          heartSpawnTimer = 0;
+          spawnHeart();
+        }
+      }
+
+      for (let i = hearts.length - 1; i >= 0; i--) {
+        const h = hearts[i];
+        h.t += h.speed;
+
+        if (h.t >= 1) {
+          // Burst effect at destination
+          spawnArrivalSparkle(reading.x, reading.y);
+          hearts.splice(i, 1);
+          continue;
+        }
+
+        const pos = bezierPoint(h.t, tarkwa, cp1, cp2, reading);
+        const wobbleY = Math.sin(time * 3 + h.wobble) * h.wobbleAmp;
+
+        ctx.save();
+        ctx.globalAlpha = h.opacity;
+        ctx.font = `${h.size}px serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(255, 107, 138, 0.6)';
+        ctx.shadowBlur = 12;
+        ctx.fillText('❤️', pos.x, pos.y + wobbleY);
+        ctx.restore();
+      }
+
+      // Sparkles
+      updateSparkles();
+
+      requestAnimationFrame(animate);
+    }
+
+    // City marker with flag + glow ring
+    function drawCityMarker(x, y, flag, t) {
+      // Pulsing ring
+      const ringSize = 18 + Math.sin(t * 2) * 4;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(x, y, ringSize, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255, 107, 138, 0.35)';
+      ctx.lineWidth = 1.5;
+      ctx.shadowColor = 'rgba(255, 107, 138, 0.4)';
+      ctx.shadowBlur = 12;
+      ctx.stroke();
+      ctx.restore();
+
+      // Inner dot
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.fillStyle = '#ff6b8a';
+      ctx.shadowColor = '#ff6b8a';
+      ctx.shadowBlur = 10;
+      ctx.fill();
+      ctx.restore();
+
+      // Flag emoji
+      ctx.save();
+      ctx.font = '20px serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(flag, x, y - 28);
+      ctx.restore();
+    }
+
+    // Arrival sparkles
+    const sparkles = [];
+    function spawnArrivalSparkle(x, y) {
+      for (let i = 0; i < 8; i++) {
+        const angle = (Math.PI * 2 / 8) * i + Math.random() * 0.3;
+        sparkles.push({
+          x, y,
+          vx: Math.cos(angle) * (2 + Math.random() * 2),
+          vy: Math.sin(angle) * (2 + Math.random() * 2),
+          life: 1,
+          size: 2 + Math.random() * 2,
+          hue: 330 + Math.random() * 40,
+        });
+      }
+    }
+
+    function updateSparkles() {
+      for (let i = sparkles.length - 1; i >= 0; i--) {
+        const s = sparkles[i];
+        s.x += s.vx;
+        s.y += s.vy;
+        s.life -= 0.03;
+        if (s.life <= 0) { sparkles.splice(i, 1); continue; }
+        ctx.save();
+        ctx.globalAlpha = s.life;
+        ctx.fillStyle = `hsla(${s.hue}, 100%, 75%, ${s.life})`;
+        ctx.shadowColor = `hsla(${s.hue}, 100%, 70%, 0.6)`;
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size * s.life, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    animate();
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════
+   19. TIME-AWARE GREETING ☀️🌙
+       Detects Ama's local time in Reading, UK
+   ═══════════════════════════════════════════════════ */
+function initTimeGreeting() {
+  const iconEl = document.getElementById('time-icon');
+  const textEl = document.getElementById('time-text');
+  if (!iconEl || !textEl) return;
+
+  // Get current time in Reading, UK (Europe/London handles GMT/BST)
+  const now = new Date();
+  const options = { timeZone: 'Europe/London', hour: '2-digit', hour12: false };
+  const hourStr = new Intl.DateTimeFormat('en-GB', options).format(now);
+  const hour = parseInt(hourStr, 10);
+
+  let icon, greeting, bodyClass;
+
+  if (hour >= 5 && hour < 12) {
+    // Morning 5am–11:59am
+    icon = '☀️';
+    greeting = 'Good morning, my love ☀️';
+    bodyClass = 'time-morning';
+  } else if (hour >= 12 && hour < 17) {
+    // Afternoon 12pm–4:59pm
+    icon = '🌤️';
+    greeting = 'Good afternoon, Ama 🌤️';
+    bodyClass = 'time-afternoon';
+  } else if (hour >= 17 && hour < 21) {
+    // Evening 5pm–8:59pm
+    icon = '🌅';
+    greeting = 'Good evening, beautiful 🌅';
+    bodyClass = 'time-evening';
+  } else {
+    // Night 9pm–4:59am
+    icon = '🌙';
+    greeting = 'Sweet dreams, Ama 🌙';
+    bodyClass = 'time-night';
+  }
+
+  iconEl.textContent = icon;
+  textEl.textContent = greeting;
+  document.body.classList.add(bodyClass);
+
+  // Apply subtle tint to main-content background
+  const mainContent = document.getElementById('main-content');
+  if (mainContent && bodyClass) {
+    mainContent.style.background = `var(--time-gradient, linear-gradient(180deg, #1a0a10 0%, #2d0a1a 20%, #1a0a10 40%, #2d0a1a 60%, #1a0a10 80%, #2d0a1a 100%))`;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════
+   20. WINDOW RESIZE HANDLER
    ═══════════════════════════════════════════════════ */
 window.addEventListener('resize', () => {
   const canvas = document.getElementById('confetti-canvas');

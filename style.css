@@ -795,6 +795,108 @@ body {
 }
 
 /* ══════════════════════════════════════════
+   TIME-AWARE GREETING BANNER
+   ══════════════════════════════════════════ */
+.time-greeting {
+  position: relative; z-index: 2;
+  text-align: center;
+  padding: 40px 20px 20px;
+  opacity: 0;
+  animation: fadeIn 1.5s ease 0.8s forwards;
+}
+.time-greeting-icon {
+  font-size: clamp(2.5rem, 6vw, 3.5rem);
+  margin-bottom: 10px;
+  animation: pulse 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 15px rgba(255, 200, 100, 0.4));
+}
+.time-greeting-text {
+  font-family: var(--font-script);
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  color: var(--rose-gold);
+  text-shadow: 0 0 20px rgba(232, 160, 160, 0.3);
+  line-height: 1.6;
+}
+
+/* Time-aware body backgrounds */
+body.time-morning {
+  --time-gradient: linear-gradient(180deg,
+    #1a0a10 0%, #2d1a1a 15%, #3a2020 30%,
+    #2d1a1a 50%, #1a0a10 100%);
+}
+body.time-afternoon {
+  --time-gradient: linear-gradient(180deg,
+    #1a0a10 0%, #2d1520 15%, #351525 30%,
+    #2d1520 50%, #1a0a10 100%);
+}
+body.time-evening {
+  --time-gradient: linear-gradient(180deg,
+    #1a0a10 0%, #1a0a18 15%, #150818 30%,
+    #1a0a18 50%, #1a0a10 100%);
+}
+body.time-night {
+  --time-gradient: linear-gradient(180deg,
+    #0a050d 0%, #0d0818 15%, #080512 30%,
+    #0d0818 50%, #0a050d 100%);
+}
+
+/* ══════════════════════════════════════════
+   SECTION: LDR MAP ANIMATION ✈️
+   ══════════════════════════════════════════ */
+.ldr-map-content {
+  text-align: center;
+  width: 100%;
+  max-width: 700px;
+}
+.ldr-map-wrap {
+  position: relative;
+  width: 100%;
+  margin: 30px auto 25px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 107, 138, 0.12);
+  box-shadow: 0 0 40px rgba(255, 107, 138, 0.06);
+}
+#map-canvas {
+  width: 100%;
+  height: 300px;
+  background: radial-gradient(ellipse at 40% 50%, #0d0a1a 0%, #050310 70%, #020108 100%);
+  border-radius: 20px;
+  display: block;
+}
+.ldr-cities {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0 10px;
+  gap: 20px;
+}
+.ldr-city {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.ldr-pin {
+  font-size: 1.5rem;
+  animation: pulse 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px rgba(255, 107, 138, 0.4));
+}
+.ldr-city-name {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--rose-gold);
+  letter-spacing: 1px;
+}
+.ldr-city-label {
+  font-family: var(--font-script);
+  font-size: 1rem;
+  color: var(--pink);
+  opacity: 0.8;
+}
+
+/* ══════════════════════════════════════════
    RESPONSIVE
    ══════════════════════════════════════════ */
 @media (max-width: 600px) {
@@ -827,4 +929,7 @@ body {
   .fortune-cookie { width: 110px; height: 110px; }
   .cookie-emoji { font-size: 4.5rem; }
   .fortune-slip { padding: 20px 25px; max-width: 90vw; }
+  #map-canvas { height: 220px; }
+  .ldr-cities { flex-direction: column; align-items: center; gap: 12px; }
+  .time-greeting { padding: 30px 15px 15px; }
 }

@@ -46,6 +46,12 @@
   <!-- ═══════════ MAIN CONTENT (hidden until splash tap) ═══════════ -->
   <div id="main-content" class="hidden">
 
+    <!-- Time-aware greeting banner -->
+    <div id="time-greeting" class="time-greeting" aria-hidden="true">
+      <div class="time-greeting-icon" id="time-icon"></div>
+      <p class="time-greeting-text" id="time-text"></p>
+    </div>
+
     <!-- Floating hearts + petals background -->
     <div id="floating-hearts" aria-hidden="true"></div>
 
@@ -180,6 +186,36 @@
             </div>
           </div>
           <p class="timer-caption">...of loving you 💖</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- EKG Divider -->
+    <div class="ekg-divider" aria-hidden="true">
+      <svg viewBox="0 0 800 60" preserveAspectRatio="none">
+        <polyline class="ekg-line" points="0,30 200,30 230,30 245,5 260,55 275,10 290,50 305,30 330,30 530,30 560,30 575,5 590,55 605,10 620,50 635,30 660,30 800,30" />
+      </svg>
+    </div>
+
+    <!-- ── SECTION 3b: LDR MAP ANIMATION ✈️ ── -->
+    <section id="ldr-map" class="section page-section">
+      <div class="ldr-map-content reveal">
+        <h2 class="section-title">Across Every Mile ✈️</h2>
+        <p class="distance-sub">5,200 km apart, but our hearts are never apart.</p>
+        <div class="ldr-map-wrap">
+          <canvas id="map-canvas"></canvas>
+        </div>
+        <div class="ldr-cities">
+          <div class="ldr-city ldr-city-me">
+            <span class="ldr-pin">📍</span>
+            <span class="ldr-city-name">Tarkwa, Ghana</span>
+            <span class="ldr-city-label">Me 💙</span>
+          </div>
+          <div class="ldr-city ldr-city-her">
+            <span class="ldr-pin">📍</span>
+            <span class="ldr-city-name">Reading, UK</span>
+            <span class="ldr-city-label">My Love 💖</span>
+          </div>
         </div>
       </div>
     </section>
