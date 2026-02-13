@@ -640,6 +640,69 @@ body {
 }
 
 /* ══════════════════════════════════════════
+   SCROLL DOWN HINT
+   ══════════════════════════════════════════ */
+.scroll-hint {
+  position: absolute; bottom: 30px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8px;
+  animation: scrollFadeIn 1.5s ease 4s both;
+}
+.scroll-hint-text {
+  font-family: var(--font-body); font-size: 0.75rem;
+  color: var(--rose-gold); opacity: 0.5;
+  letter-spacing: 3px; text-transform: uppercase;
+}
+.scroll-arrow {
+  font-size: 1.2rem; color: var(--pink); opacity: 0.6;
+  animation: scrollBounce 2s ease-in-out infinite;
+}
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50%      { transform: translateY(12px); opacity: 1; }
+}
+@keyframes scrollFadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ══════════════════════════════════════════
+   YES SCREEN — REPLAY BUTTON
+   ══════════════════════════════════════════ */
+.btn-replay {
+  margin-top: 35px;
+  font-family: var(--font-body); font-size: 1rem; font-weight: 600;
+  padding: 14px 35px;
+  border: 2px solid var(--rose-gold); border-radius: 50px;
+  background: rgba(232, 160, 160, 0.1);
+  color: var(--rose-gold); cursor: pointer;
+  transition: all 0.3s ease;
+  animation: fadeIn 1s ease 2s both;
+}
+.btn-replay:hover {
+  background: rgba(255, 107, 138, 0.2);
+  border-color: var(--pink); color: var(--pink);
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(255, 107, 138, 0.2);
+}
+
+/* ══════════════════════════════════════════
+   AUDIO LOADING STATE
+   ══════════════════════════════════════════ */
+#music-toggle.loading .music-icon {
+  animation: musicSpin 1s linear infinite;
+}
+#music-toggle.loading {
+  border-color: var(--gold);
+  opacity: 0.7;
+}
+@keyframes musicSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ══════════════════════════════════════════
    LIGHTBOX
    ══════════════════════════════════════════ */
 .lightbox {

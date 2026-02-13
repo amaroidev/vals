@@ -39,19 +39,42 @@ function loadTrack(index) {
   bgMusic.load();
   const nameEl = document.getElementById('music-track-name');
   if (nameEl) nameEl.textContent = track.name;
+
+  // Show loading spinner until audio is ready
+  musicBtn.classList.add('loading');
+  bgMusic.addEventListener('canplay', function onReady() {
+    musicBtn.classList.remove('loading');
+    bgMusic.removeEventListener('canplay', onReady);
+  });
 }
 
 splash.addEventListener('click', () => {
   splash.classList.add('fade-out');
   mainEl.classList.remove('hidden');
 
-  // Load first track & play
+  // Load first track & play (with loading state)
+  musicBtn.classList.add('loading');
   loadTrack(0);
   bgMusic.volume = 0.5;
   bgMusic.play().then(() => {
     musicPlaying = true;
+    musicBtn.classList.remove('loading');
     musicBtn.classList.add('playing');
-  }).catch(() => {});
+  }).catch(() => {
+    musicBtn.classList.remove('loading');
+  });
+
+  // Hide scroll hint after first scroll
+  const scrollHint = document.querySelector('.scroll-hint');
+  if (scrollHint) {
+    const hideHint = () => {
+      scrollHint.style.transition = 'opacity 0.5s ease';
+      scrollHint.style.opacity = '0';
+      setTimeout(() => scrollHint.style.display = 'none', 500);
+      window.removeEventListener('scroll', hideHint);
+    };
+    window.addEventListener('scroll', hideHint, { once: true });
+  }
 
   setTimeout(() => {
     initPageTransitions();
@@ -1005,6 +1028,12 @@ btnYes.addEventListener('click', () => {
   yesScreen.classList.remove('hidden');
   launchConfetti();
   sendNotification('YES 💖');
+});
+
+// ── Replay / go back button on Yes screen ──
+document.getElementById('btn-replay').addEventListener('click', () => {
+  yesScreen.classList.add('hidden');
+  document.getElementById('intro').scrollIntoView({ behavior: 'smooth' });
 });
 
 // ── NO — dodge away ──
