@@ -499,6 +499,9 @@ body {
   border: 1px solid rgba(255, 107, 138, 0.15);
   border-radius: 16px;
   cursor: pointer;
+  touch-action: auto;
+}
+#game-canvas.game-active {
   touch-action: none;
 }
 .game-start-btn { margin-top: 20px; }
@@ -1050,6 +1053,9 @@ body.time-night {
   display: flex; align-items: center; justify-content: center;
   transition: transform 0.3s ease;
   -webkit-user-select: none; user-select: none;
+  touch-action: auto;
+}
+.hug-btn.hugging {
   touch-action: none;
 }
 .hug-btn:hover { transform: scale(1.05); }
@@ -1184,7 +1190,7 @@ body.time-night {
   overflow: visible;
   background: rgba(255, 240, 243, 0.03);
   border: 2px dashed rgba(255, 107, 138, 0.2);
-  touch-action: none;
+  touch-action: auto;
 }
 .puzzle-piece {
   position: absolute;
@@ -1193,7 +1199,7 @@ body.time-night {
   cursor: grab;
   transition: box-shadow 0.3s ease;
   border-radius: 4px;
-  touch-action: none;
+  touch-action: auto;
   -webkit-user-select: none; user-select: none;
   z-index: 1;
 }
@@ -1243,8 +1249,7 @@ body.time-night {
    RESPONSIVE
    ══════════════════════════════════════════ */
 @media (max-width: 600px) {
-  html { overscroll-behavior: none; }
-  body { overscroll-behavior-y: none; -webkit-overflow-scrolling: touch; }
+  body { -webkit-overflow-scrolling: touch; }
   .reason-card,
   .reason-card:nth-child(even) {
     flex-direction: column; align-items: center; text-align: center;

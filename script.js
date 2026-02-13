@@ -689,6 +689,7 @@ gameStartBtn.addEventListener('click', () => {
   resizeGameCanvas();
   gameStartBtn.classList.add('hidden');
   gameOverEl.classList.add('hidden');
+  gameCanvas.classList.add('game-active');
   gameScore = 0;
   gameTime = 15;
   gameHearts = [];
@@ -797,6 +798,7 @@ function spawnGameSparkle(x, y) {
 
 gameCanvas.addEventListener('click', (e) => handleGameTap(e.clientX, e.clientY));
 gameCanvas.addEventListener('touchstart', (e) => {
+  if (!gameRunning) return; // allow normal scroll when game not active
   e.preventDefault();
   const t = e.touches[0];
   handleGameTap(t.clientX, t.clientY);
@@ -806,6 +808,7 @@ function endGame() {
   gameRunning = false;
   clearInterval(gameInterval);
   cancelAnimationFrame(gameAnimId);
+  gameCanvas.classList.remove('game-active');
 
   let msg = '';
   if (gameScore >= 20) msg = `${gameScore} hearts! You caught ALL my love! 💖`;
@@ -1626,6 +1629,7 @@ function initPhotoPuzzle() {
     if (piece.classList.contains('placed')) return;
     e.preventDefault();
     piece.setPointerCapture(e.pointerId);
+    piece.style.touchAction = 'none';
 
     dragging = piece;
     piece.classList.add('dragging');
@@ -1651,6 +1655,7 @@ function initPhotoPuzzle() {
     if (!dragging) return;
     const piece = dragging;
     piece.classList.remove('dragging');
+    piece.style.touchAction = 'auto';
     piece.removeEventListener('pointermove', onPointerMove);
     piece.removeEventListener('pointerup', onPointerUp);
 
@@ -1734,9 +1739,10 @@ function initVirtualHug() {
 
   function startHug(e) {
     if (completed) resetHug();
-    e.preventDefault();
+    // Don't preventDefault immediately — let the pointer capture handle it
     startTime = Date.now();
     btn.classList.add('hugging');
+    btn.setPointerCapture(e.pointerId);
     if (hintEl) hintEl.style.opacity = '0';
 
     function updateRing() {
@@ -1759,7 +1765,6 @@ function initVirtualHug() {
 
   function stopHug(e) {
     if (completed) return;
-    e.preventDefault();
     cancelAnimationFrame(animFrame);
     btn.classList.remove('hugging');
 
