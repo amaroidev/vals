@@ -1029,13 +1029,84 @@ const yesScreen = document.getElementById('yes-screen');
 
 btnYes.addEventListener('click', () => {
   yesScreen.classList.remove('hidden');
-  launchConfetti();
   sendNotification('YES 💖');
+  showBouquetThenConfetti();
 });
+
+function showBouquetThenConfetti() {
+  const bouquetScene = document.getElementById('bouquet-scene');
+  const yesContent = document.querySelector('.yes-content');
+
+  // Hide yes-content initially, show bouquet
+  yesContent.style.opacity = '0';
+  yesContent.style.pointerEvents = 'none';
+
+  // Activate bouquet scene
+  requestAnimationFrame(() => {
+    bouquetScene.classList.add('active');
+  });
+
+  // Spawn falling petals during bouquet
+  spawnBouquetPetals();
+
+  // After bouquet plays out (~5.5s), transition to yes screen
+  setTimeout(() => {
+    bouquetScene.classList.add('fade-out');
+
+    setTimeout(() => {
+      bouquetScene.classList.remove('active', 'fade-out');
+      bouquetScene.style.display = 'none';
+      // Remove lingering petals
+      document.querySelectorAll('.bouquet-petal').forEach(p => p.remove());
+
+      // Show yes content with confetti
+      yesContent.style.opacity = '1';
+      yesContent.style.pointerEvents = 'auto';
+      yesContent.style.animation = 'zoomIn 0.6s ease-out';
+      launchConfetti();
+    }, 1000);
+  }, 5500);
+}
+
+function spawnBouquetPetals() {
+  const petals = ['🌸', '🌺', '🌷', '💮', '🪻', '🏵️'];
+  const body = document.body;
+
+  // Spawn petals in waves
+  for (let wave = 0; wave < 3; wave++) {
+    const waveDelay = 2500 + wave * 1200; // start at 2.5s (after blooms start)
+    setTimeout(() => {
+      for (let i = 0; i < 10; i++) {
+        const petal = document.createElement('div');
+        petal.classList.add('bouquet-petal');
+        petal.textContent = petals[Math.floor(Math.random() * petals.length)];
+        petal.style.left = Math.random() * 100 + 'vw';
+        petal.style.top = '-40px';
+        petal.style.setProperty('--delay', (Math.random() * 0.8) + 's');
+        petal.style.setProperty('--duration', (3 + Math.random() * 3) + 's');
+        petal.style.fontSize = (1 + Math.random() * 1.2) + 'rem';
+        body.appendChild(petal);
+
+        // Self-remove after animation
+        setTimeout(() => petal.remove(), 7000);
+      }
+    }, waveDelay);
+  }
+}
 
 // ── Replay / go back button on Yes screen ──
 document.getElementById('btn-replay').addEventListener('click', () => {
   yesScreen.classList.add('hidden');
+  // Reset bouquet scene for potential replay
+  const bouquetScene = document.getElementById('bouquet-scene');
+  bouquetScene.style.display = '';
+  bouquetScene.classList.remove('active', 'fade-out');
+  // Reset bloom animations by re-cloning
+  bouquetScene.querySelectorAll('.bloom, .stem, .bouquet-ribbon').forEach(el => {
+    el.style.animation = 'none';
+    el.offsetHeight; // trigger reflow
+    el.style.animation = '';
+  });
   document.getElementById('intro').scrollIntoView({ behavior: 'smooth' });
 });
 
