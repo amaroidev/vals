@@ -1662,10 +1662,13 @@ function initPhotoPuzzle() {
       piece.style.backgroundSize = `${boardSize}px ${boardSize}px`;
       piece.style.backgroundPosition = `-${pos.col * ps}px -${pos.row * ps}px`;
 
-      // Scatter pieces around the board
+      // Scatter pieces randomly within the board bounds
       const scattered = shuffled[idx];
-      const startX = scattered.col * ps + (Math.random() - 0.5) * ps * 0.6;
-      const startY = scattered.row * ps + (Math.random() - 0.5) * ps * 0.6;
+      let startX = scattered.col * ps + (Math.random() - 0.5) * ps * 0.6;
+      let startY = scattered.row * ps + (Math.random() - 0.5) * ps * 0.6;
+      // Clamp so pieces stay fully inside the board
+      startX = Math.max(0, Math.min(startX, boardSize - ps));
+      startY = Math.max(0, Math.min(startY, boardSize - ps));
       piece.style.left = startX + 'px';
       piece.style.top = startY + 'px';
 
@@ -1698,8 +1701,12 @@ function initPhotoPuzzle() {
   function onPointerMove(e) {
     if (!dragging) return;
     const boardRect = board.getBoundingClientRect();
+    const ps = pieceSize();
     let x = e.clientX - boardRect.left - dragOffset.x;
     let y = e.clientY - boardRect.top - dragOffset.y;
+    // Keep piece within board bounds
+    x = Math.max(0, Math.min(x, boardSize - ps));
+    y = Math.max(0, Math.min(y, boardSize - ps));
     dragging.style.left = x + 'px';
     dragging.style.top = y + 'px';
   }
