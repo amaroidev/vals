@@ -1178,19 +1178,37 @@ body.time-night {
   width: 100%;
   margin: 0 auto;
 }
+.puzzle-tray {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  height: 160px;
+  margin: 0 auto 15px;
+  border-radius: 12px;
+  background: rgba(255, 240, 243, 0.02);
+  border: 2px dashed rgba(255, 107, 138, 0.12);
+  overflow: hidden;
+  display: none;
+}
+.puzzle-tray.active { display: block; }
 .puzzle-board {
   position: relative;
-  width: 300px; height: 300px;
-  margin: 20px auto;
+  width: 380px; height: 380px;
+  margin: 0 auto;
   border-radius: 12px;
   overflow: hidden;
   background: rgba(255, 240, 243, 0.03);
   border: 2px dashed rgba(255, 107, 138, 0.2);
   touch-action: auto;
 }
+.puzzle-slot {
+  position: absolute;
+  border: 1px dashed rgba(255, 107, 138, 0.12);
+  border-radius: 3px;
+  background: rgba(255, 107, 138, 0.03);
+}
 .puzzle-piece {
   position: absolute;
-  background-size: 300px 300px;
   border: 1px solid rgba(255, 107, 138, 0.25);
   cursor: grab;
   transition: box-shadow 0.3s ease;
@@ -1198,6 +1216,9 @@ body.time-night {
   touch-action: auto;
   -webkit-user-select: none; user-select: none;
   z-index: 1;
+}
+.puzzle-piece.in-tray {
+  z-index: 2;
 }
 .puzzle-piece:hover {
   box-shadow: 0 0 20px rgba(255, 107, 138, 0.4);
@@ -1293,6 +1314,7 @@ body.time-night {
   .hug-btn { width: 120px; height: 120px; }
   .hug-emoji { font-size: 2.8rem; }
   .hug-arms-left, .hug-arms-right { font-size: 3rem; }
-  .puzzle-board { width: 260px; height: 260px; }
-  .puzzle-piece { background-size: 260px 260px !important; }
+  .puzzle-board { width: 300px; height: 300px; }
+  .puzzle-tray { max-width: 300px; height: 140px; }
+  .puzzle-piece { background-size: 300px 300px !important; }
 }

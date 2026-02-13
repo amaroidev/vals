@@ -1610,13 +1610,14 @@ function initTimeGreeting() {
    ═══════════════════════════════════════════════════ */
 function initPhotoPuzzle() {
   const board = document.getElementById('puzzle-board');
+  const tray = document.getElementById('puzzle-tray');
   const startBtn = document.getElementById('puzzle-start');
   const completeEl = document.getElementById('puzzle-complete');
-  if (!board || !startBtn) return;
+  if (!board || !startBtn || !tray) return;
 
   const imgSrc = 'herpictures/photo2.jpg';
-  const GRID = 3; // 3x3 puzzle
-  let boardSize = board.offsetWidth || 300;
+  const GRID = 3;
+  let boardSize = 0;
   const pieceSize = () => boardSize / GRID;
   let pieces = [];
   let placedCount = 0;
@@ -1629,53 +1630,73 @@ function initPhotoPuzzle() {
     placedCount = 0;
     pieces = [];
     board.innerHTML = '';
+    tray.innerHTML = '';
+    tray.classList.add('active');
     boardSize = board.offsetWidth;
-    // Update board height to match
     board.style.height = boardSize + 'px';
     buildPuzzle();
   });
 
   function buildPuzzle() {
     const ps = pieceSize();
-    const allPositions = [];
 
-    // Create pieces
+    // Draw grid guide slots on the board
+    for (let r = 0; r < GRID; r++) {
+      for (let c = 0; c < GRID; c++) {
+        const slot = document.createElement('div');
+        slot.classList.add('puzzle-slot');
+        slot.style.width = ps + 'px';
+        slot.style.height = ps + 'px';
+        slot.style.left = c * ps + 'px';
+        slot.style.top = r * ps + 'px';
+        board.appendChild(slot);
+      }
+    }
+
+    // Create all 9 pieces
+    const allPositions = [];
     for (let row = 0; row < GRID; row++) {
       for (let col = 0; col < GRID; col++) {
         allPositions.push({ row, col });
       }
     }
 
-    // Shuffle positions for initial placement
+    // Shuffle order for tray placement
     const shuffled = [...allPositions].sort(() => Math.random() - 0.5);
 
-    allPositions.forEach((pos, idx) => {
+    // Calculate tray layout: arrange pieces in a grid inside the tray with spacing
+    const trayW = tray.offsetWidth;
+    const trayH = tray.offsetHeight;
+    const trayPieceScale = Math.min((trayW - 30) / (GRID * ps + 20), (trayH - 10) / (Math.ceil(GRID * GRID / GRID) * ps + 10), 0.38);
+    const smallPs = Math.floor(ps * trayPieceScale);
+    const trayCols = Math.min(5, Math.floor((trayW - 10) / (smallPs + 8)));
+
+    shuffled.forEach((pos, idx) => {
       const piece = document.createElement('div');
-      piece.classList.add('puzzle-piece');
+      piece.classList.add('puzzle-piece', 'in-tray');
       piece.dataset.row = pos.row;
       piece.dataset.col = pos.col;
+      piece.dataset.inTray = 'true';
 
-      // Background shows the correct slice of the image
-      piece.style.width = ps + 'px';
-      piece.style.height = ps + 'px';
+      // Full-size piece (will be placed on board at full size)
+      piece.style.width = smallPs + 'px';
+      piece.style.height = smallPs + 'px';
       piece.style.backgroundImage = `url(${imgSrc})`;
-      piece.style.backgroundSize = `${boardSize}px ${boardSize}px`;
-      piece.style.backgroundPosition = `-${pos.col * ps}px -${pos.row * ps}px`;
+      piece.style.backgroundSize = `${smallPs * GRID}px ${smallPs * GRID}px`;
+      piece.style.backgroundPosition = `-${pos.col * smallPs}px -${pos.row * smallPs}px`;
 
-      // Scatter pieces randomly within the board bounds
-      const scattered = shuffled[idx];
-      let startX = scattered.col * ps + (Math.random() - 0.5) * ps * 0.6;
-      let startY = scattered.row * ps + (Math.random() - 0.5) * ps * 0.6;
-      // Clamp so pieces stay fully inside the board
-      startX = Math.max(0, Math.min(startX, boardSize - ps));
-      startY = Math.max(0, Math.min(startY, boardSize - ps));
-      piece.style.left = startX + 'px';
-      piece.style.top = startY + 'px';
+      // Arrange in tray grid with no overlap
+      const trayCol = idx % trayCols;
+      const trayRow = Math.floor(idx / trayCols);
+      const spacingX = (trayW - trayCols * smallPs) / (trayCols + 1);
+      const spacingY = 10;
+      const tx = spacingX + trayCol * (smallPs + spacingX);
+      const ty = spacingY + trayRow * (smallPs + spacingY);
+      piece.style.left = tx + 'px';
+      piece.style.top = ty + 'px';
 
-      // Drag events
       piece.addEventListener('pointerdown', onPointerDown);
-
-      board.appendChild(piece);
+      tray.appendChild(piece);
       pieces.push(piece);
     });
   }
@@ -1687,12 +1708,43 @@ function initPhotoPuzzle() {
     piece.setPointerCapture(e.pointerId);
     piece.style.touchAction = 'none';
 
+    // If piece is in tray, move it to the board
+    if (piece.dataset.inTray === 'true') {
+      const trayRect = tray.getBoundingClientRect();
+      const boardRect = board.getBoundingClientRect();
+      const pieceRect = piece.getBoundingClientRect();
+
+      // Calculate where piece is on screen, place it at same visual position relative to board
+      const ps = pieceSize();
+      piece.style.width = ps + 'px';
+      piece.style.height = ps + 'px';
+      piece.style.backgroundSize = `${boardSize}px ${boardSize}px`;
+      const col = parseInt(piece.dataset.col);
+      const row = parseInt(piece.dataset.row);
+      piece.style.backgroundPosition = `-${col * ps}px -${row * ps}px`;
+
+      // Position on board — center of where it was visually
+      let newX = (pieceRect.left + pieceRect.width / 2) - boardRect.left - ps / 2;
+      let newY = (pieceRect.top + pieceRect.height / 2) - boardRect.top - ps / 2;
+      newX = Math.max(0, Math.min(newX, boardSize - ps));
+      newY = Math.max(0, Math.min(newY, boardSize - ps));
+      piece.style.left = newX + 'px';
+      piece.style.top = newY + 'px';
+
+      piece.dataset.inTray = 'false';
+      piece.classList.remove('in-tray');
+      board.appendChild(piece);
+
+      dragOffset.x = e.clientX - boardRect.left - newX;
+      dragOffset.y = e.clientY - boardRect.top - newY;
+    } else {
+      const boardRect = board.getBoundingClientRect();
+      dragOffset.x = e.clientX - boardRect.left - parseFloat(piece.style.left);
+      dragOffset.y = e.clientY - boardRect.top - parseFloat(piece.style.top);
+    }
+
     dragging = piece;
     piece.classList.add('dragging');
-
-    const boardRect = board.getBoundingClientRect();
-    dragOffset.x = e.clientX - boardRect.left - parseFloat(piece.style.left);
-    dragOffset.y = e.clientY - boardRect.top - parseFloat(piece.style.top);
 
     piece.addEventListener('pointermove', onPointerMove);
     piece.addEventListener('pointerup', onPointerUp);
@@ -1704,7 +1756,6 @@ function initPhotoPuzzle() {
     const ps = pieceSize();
     let x = e.clientX - boardRect.left - dragOffset.x;
     let y = e.clientY - boardRect.top - dragOffset.y;
-    // Keep piece within board bounds
     x = Math.max(0, Math.min(x, boardSize - ps));
     y = Math.max(0, Math.min(y, boardSize - ps));
     dragging.style.left = x + 'px';
@@ -1744,6 +1795,11 @@ function initPhotoPuzzle() {
   }
 
   function onPuzzleComplete() {
+    // Hide tray
+    tray.classList.remove('active');
+    // Remove guide slots
+    board.querySelectorAll('.puzzle-slot').forEach(s => s.remove());
+
     // Brief delay then show completion
     setTimeout(() => {
       // Flash all pieces
